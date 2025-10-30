@@ -3,623 +3,540 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>AAC v30 — 情緒與身體互動板（暖色版）</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>AAC v31 — 情緒與身體互動板（暖色版）</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#fdfaf6;      /* 米白 */
-    --accent:#d4b483;  /* 柔棕 */
-    --accent-2:#f8e8b5;/* 亮黃點綴 */
-    --muted:#7a6a55;
-    --card:#ffffff;
-    --shadow: 0 6px 18px rgba(17,15,12,0.06);
-    --radius:20px;
-    --btn-height:68px;
-    --btn-gap:16px;
-    --safe-bottom: env(safe-area-inset-bottom, 12px);
-  }
-  html,body{height:100%; margin:0; padding:0; font-family:'Noto Sans TC', system-ui, -apple-system; background:var(--bg); color:#2b2b2b; -webkit-font-smoothing:antialiased;}
-  .app { display:flex; flex-direction:column; height:100vh; box-sizing:border-box; }
-  main{flex:1; overflow:auto; padding-bottom: calc(var(--btn-height) + var(--safe-bottom) + 24px);}
+:root{
+  --bg:#fdfaf6; --accent:#d4b483; --accent-2:#f8e8b5; --muted:#7a6a55;
+  --card:#fff; --shadow:0 6px 18px rgba(17,15,12,0.06); --radius:18px; --btn-h:68px;
+  --safe-bottom:env(safe-area-inset-bottom,12px);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;font-family:'Noto Sans TC',system-ui,-apple-system; background:var(--bg); color:#2b2b2b;}
+.app{display:flex;flex-direction:column;height:100vh;}
+header{padding:12px 16px;}
+.title{font-weight:700;color:var(--muted);font-size:20px;}
+main{flex:1;overflow:auto;padding-bottom:calc(var(--btn-h) + var(--safe-bottom) + 20px);}
 
-  /* header area (space for potential title) */
-  .header{padding:12px 18px;}
-  .title{font-weight:700; font-size:20px; color:var(--muted);}
+/* 卡片 */
+.card{background:var(--card);margin:12px 16px;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;}
+.section-title{font-weight:700;color:#3d2f20;margin-bottom:8px;font-size:16px;}
 
-  /* container cards */
-  .card{background:var(--card); margin:12px 16px; border-radius:var(--radius); box-shadow:var(--shadow); padding:14px;}
-  .section-title{font-weight:700; color:#3d2f20; margin-bottom:8px; font-size:16px;}
+/* 底部導航 */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--btn-h)+var(--safe-bottom));padding-bottom:var(--safe-bottom);background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.95));border-top:1px solid rgba(0,0,0,0.04);display:flex;z-index:60;align-items:center;justify-content:space-around;}
+.nav-btn{flex:1;height:var(--btn-h);display:flex;align-items:center;justify-content:center;gap:6px;flex-direction:column;border:none;background:transparent;font-weight:600;color:#8a7a63;font-size:13px;cursor:pointer;}
+.nav-btn.active{color:var(--accent);}
 
-  /* bottom nav */
-  .bottom-nav{position:fixed; left:0; right:0; bottom:0; height:calc(var(--btn-height) + var(--safe-bottom)); padding-bottom:var(--safe-bottom); background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9)); border-top:1px solid rgba(0,0,0,0.04); display:flex; gap:0; z-index:60; align-items:center; justify-content:space-around;}
-  .nav-btn{flex:1; height:var(--btn-height); display:flex; align-items:center; justify-content:center; gap:8px; flex-direction:column; background:transparent; border:none; font-weight:600; color:#8a7a63; font-size:13px;}
-  .nav-btn.active{color:var(--accent);}
+/* 按鈕格 */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.word-btn{background:linear-gradient(180deg,#fff,#fff);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:86px;font-weight:700;box-shadow:0 6px 14px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.03);cursor:pointer;user-select:none;}
+.word-emoji{font-size:34px;margin-bottom:6px;}
+.word-label{font-size:18px;color:#3d2f20;}
 
-  /* grid for quick buttons and builder */
-  .grid-2{display:grid; grid-template-columns: repeat(2, 1fr); gap:var(--btn-gap);}
-  .grid-1{display:grid; grid-template-columns: 1fr; gap:var(--btn-gap);}
-  .word-btn{background:linear-gradient(180deg, #fff, #fff); border-radius:16px; padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:86px; font-weight:700; box-shadow:0 6px 14px rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.03); cursor:pointer; user-select:none;}
-  .word-emoji{font-size:34px; margin-bottom:6px;}
-  .word-label{font-size:18px; color:#3d2f20;}
+/* 句子區 */
+.sentence-area{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#faf7f2);border:1px solid rgba(0,0,0,0.03);min-height:72px;}
+.sentence-chip{background:var(--accent-2);padding:8px 12px;border-radius:12px;font-weight:700;color:#3b2e1f;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
 
-  /* sentence display */
-  .sentence-area{display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:12px; border-radius:12px; background:linear-gradient(180deg,#fff,#faf7f2); border:1px solid rgba(0,0,0,0.03);}
-  .sentence-chip{background:var(--accent-2); padding:8px 12px; border-radius:12px; font-weight:700; color:#3b2e1f; box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+/* 情緒/身體 tabs */
+.tabs{display:flex;gap:8px;padding:8px;}
+.tab{padding:8px 12px;border-radius:12px;background:transparent;border:1px solid rgba(0,0,0,0.03);font-weight:600;cursor:pointer;}
+.tab.active{background:var(--accent);color:#fff;}
 
-  /* settings */
-  .select, .btn { font-size:16px; }
+/* 人體示意 */
+.body-wrap{display:flex;gap:12px;align-items:center;justify-content:center;padding:8px;}
+.body-svg{width:260px;max-width:60vw;height:auto;touch-action:manipulation;user-select:none;}
+.body-hotspot{fill:transparent;cursor:pointer;transition:fill .15s ease, transform .08s ease;}
+.hot-active{fill:rgba(212,180,131,0.16);transform:scale(1.02);}
 
-  /* modal */
-  .modal{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.36); z-index:90;}
-  .modal-card{background:var(--card); padding:16px; border-radius:14px; width:92%; max-width:420px; box-shadow:var(--shadow);}
+/* 狀況彈窗（定位於點擊附近） */
+.popup{position:fixed;z-index:200;background:var(--card);border-radius:12px;padding:8px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04);min-width:180px;}
+.popup .status-btn{display:inline-block;margin:6px;padding:8px 10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fff);border:1px solid rgba(0,0,0,0.06);cursor:pointer;font-weight:700;}
 
-  /* emotion + body layout */
-  .tabs{display:flex; gap:8px; padding:8px;}
-  .tab{padding:8px 12px; border-radius:12px; background:transparent; border:1px solid rgba(0,0,0,0.03); font-weight:600; cursor:pointer;}
-  .tab.active{background:var(--accent); color:#fff;}
+/* 設定的狀況詞彙標籤 */
+.tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{background:var(--accent-2);padding:8px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;}
+.tag .remove{background:transparent;border:none;font-weight:700;color:#7a5f3e;cursor:pointer;}
 
-  /* body svg wrapper */
-  .body-wrap{display:flex; gap:12px; align-items:center; justify-content:center; padding:8px;}
-  .body-svg{width:220px; max-width:60vw; height:auto; touch-action: manipulation; user-select:none;}
-  .body-hotspot{fill:transparent; cursor:pointer; transition:fill .15s ease, transform .08s ease;}
-  .hot-active{fill:rgba(212,180,131,0.16); transform:scale(1.02);}
+/* modal template */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);z-index:300;}
+.modal-card{background:var(--card);padding:16px;border-radius:14px;width:92%;max-width:420px;box-shadow:var(--shadow);}
 
-  /* responsive: iPad landscape -> 2col layout */
-  @media (min-width:900px){
-    main { padding-left:20px; padding-right:20px; }
-    .two-col{display:flex; gap:16px; align-items:flex-start;}
-    .left-col{flex:0 0 320px;}
-    .right-col{flex:1;}
-    .grid-2{grid-template-columns:repeat(3,1fr);}
-    .body-svg{width:300px;}
-  }
+/* responsive: iPad landscape -> 2col layout */
+@media (min-width:900px){
+  main{padding-left:20px;padding-right:20px;}
+  .two-col{display:flex;gap:16px;align-items:flex-start;}
+  .left-col{flex:0 0 340px;}
+  .right-col{flex:1;}
+  .grid-2{grid-template-columns:repeat(3,1fr);}
+  .body-svg{width:320px;}
+}
 
-  /* feedback animation */
-  .flash{animation: flash 280ms ease-out;}
-  @keyframes flash { 0% { box-shadow:0 0 0 6px rgba(248,232,181,0.45);} 100%{box-shadow: none;} }
-
-  /* accessibility */
-  .sr-only{position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap;}
+/* small animations */
+.flash{animation: flash 320ms ease-out;}
+@keyframes flash {0%{box-shadow:0 0 0 8px rgba(248,232,181,0.40);}100%{box-shadow:none;}}
 </style>
 </head>
 <body>
-<div class="app" role="application" aria-label="輔助溝通應用 AAC v30">
-  <header class="header">
-    <div class="title">AAC v30 — 溫和照護版</div>
-  </header>
-
+<div class="app" role="application" aria-label="輔助溝通應用 AAC v31">
+  <header><div class="title">AAC v31 — 情緒與身體（暖色）</div></header>
   <main id="main">
-    <!-- responsive two-column for wide screens -->
-    <div id="layout-root">
 
-      <!-- Quick + Emotion + Builder will swap views. By default show Quick -->
-      <section id="quick-section" class="card" aria-hidden="false">
-        <div class="section-title">一鍵求助</div>
-        <p style="margin:0 0 10px 0; color:#6b5a46;">常用快速按鈕，點擊即朗讀 / 發出提示</p>
+    <!-- Quick / Emotion / Builder / Settings sections -->
+    <section id="quick-section" class="card" aria-hidden="false">
+      <div class="section-title">一鍵求助</div>
+      <p style="margin:0 0 10px 0;color:#6b5a46;">按一下會朗讀（不會加入組合句子）</p>
+      <div id="quick-grid" class="grid-2"></div>
+    </section>
 
-        <div id="quick-grid" class="grid-2">
-          <!-- Buttons injected by JS -->
+    <section id="emotion-section" class="card" style="display:none;" aria-hidden="true">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="section-title">情緒與身體部位</div>
+        <div style="font-size:13px;color:#8a7a63;">點擊圖形或按鈕以選擇狀況並朗讀</div>
+      </div>
+
+      <div class="tabs" style="margin-top:10px;">
+        <button class="tab active" data-tab="emotion">情緒板</button>
+        <button class="tab" data-tab="body">身體地圖</button>
+      </div>
+
+      <div id="emotion-panel" style="margin-top:10px;">
+        <div id="emotion-grid" class="grid-2"></div>
+      </div>
+
+      <div id="body-panel" style="display:none;margin-top:12px;">
+        <div class="body-wrap">
+          <!-- friendly SVG human illustration (可替換為由 .ai 轉出的 SVG) -->
+          <svg class="body-svg" viewBox="0 0 260 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人體示意圖">
+            <!-- a soft-line human shape (stylized) -->
+            <g stroke="#c9b29a" stroke-width="3" fill="none" transform="translate(0,4)">
+              <ellipse cx="130" cy="48" rx="36" ry="28" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></ellipse>
+              <path d="M92 78 q38 28 76 0 v56 q0 18 -24 18 h-28 q-24 0 -24 -18 z" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></path>
+              <rect x="70" y="154" width="120" height="170" rx="26" ry="26" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></rect>
+              <rect x="26" y="92" width="34" height="120" rx="18" ry="18" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></rect>
+              <rect x="200" y="92" width="34" height="120" rx="18" ry="18" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></rect>
+              <rect x="76" y="332" width="34" height="120" rx="14" ry="14" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></rect>
+              <rect x="150" y="332" width="34" height="120" rx="14" ry="14" fill="#fff6f0" stroke="#c9b29a" stroke-width="2"></rect>
+            </g>
+            <!-- Hotspots (transparent but clickable) -->
+            <g id="hotspots" fill="transparent">
+              <ellipse id="hs_head" class="body-hotspot" cx="130" cy="48" rx="36" ry="28"></ellipse>
+              <rect id="hs_chest" class="body-hotspot" x="92" y="78" width="76" height="54" rx="10" ry="10"></rect>
+              <rect id="hs_abdomen" class="body-hotspot" x="92" y="132" width="76" height="74" rx="10" ry="10"></rect>
+              <rect id="hs_lhand" class="body-hotspot" x="26" y="92" width="34" height="120" rx="18" ry="18"></rect>
+              <rect id="hs_rhand" class="body-hotspot" x="200" y="92" width="34" height="120" rx="18" ry="18"></rect>
+              <rect id="hs_lleg" class="body-hotspot" x="76" y="332" width="34" height="120" rx="14" ry="14"></rect>
+              <rect id="hs_rleg" class="body-hotspot" x="150" y="332" width="34" height="120" rx="14" ry="14"></rect>
+            </g>
+          </svg>
         </div>
-      </section>
+        <div style="margin-top:10px;color:#6b5a46;font-size:13px;">點選身體部位，接著從彈出選單選擇「痛 / 麻 / 癢 / 痠」或你在設定中自訂的詞彙。</div>
+      </div>
+    </section>
 
-      <section id="emotion-section" class="card" style="display:none;" aria-hidden="true">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="section-title">情緒與身體部位</div>
-          <div style="font-size:13px; color:#8a7a63;">點擊圖像或按鈕以朗讀</div>
+    <section id="builder-section" class="card" style="display:none;" aria-hidden="true">
+      <div class="section-title">組合句子</div>
+      <div style="margin-bottom:10px;color:#6b5a46;">點選詞彙建立句子（快速語句不會自動加入此區）</div>
+      <div id="sentence-area" class="sentence-area"></div>
+
+      <div style="display:flex;gap:8px;margin:12px 0;">
+        <button id="speak-btn" class="word-btn" style="flex:1;min-height:56px;">🔊 朗讀</button>
+        <button id="undo-btn" class="word-btn" style="min-width:120px;background:#fff2d6;color:#3d2f20;">⬅️ 刪除</button>
+        <button id="clear-btn" class="word-btn" style="min-width:120px;background:#ffe4b3;color:#3d2f20;">❌ 清除</button>
+      </div>
+
+      <div id="builder-grid" class="grid-2"></div>
+    </section>
+
+    <section id="settings-section" class="card" style="display:none;" aria-hidden="true">
+      <div class="section-title">設定</div>
+      <div style="margin-bottom:12px;">
+        <label for="lang-select" style="display:block;margin-bottom:6px;">朗讀語言</label>
+        <select id="lang-select" style="width:100%;padding:10px;border-radius:12px;border:1px solid rgba(0,0,0,0.05);">
+          <option value="zh-TW">中文（台灣）</option>
+          <option value="en-US">English</option>
+          <option value="id-ID">Bahasa Indonesia</option>
+          <option value="vi-VN">Tiếng Việt</option>
+          <option value="tl-PH">Tagalog</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="margin-bottom:8px;font-weight:600;">狀況詞彙（點 ✕ 可刪除）</div>
+        <div id="status-tags" class="tags" style="margin-bottom:8px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input id="new-status-input" placeholder="新增一個狀況（例如：熱）" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);">
+          <button id="add-status-btn" class="word-btn" style="min-width:120px;background:#fff8f0;">＋ 新增</button>
         </div>
+      </div>
 
-        <div class="tabs" style="margin-top:10px;">
-          <button class="tab active" data-tab="emotion">情緒板</button>
-          <button class="tab" data-tab="body">身體地圖</button>
-        </div>
-
-        <div id="emotion-panel" style="margin-top:10px;">
-          <div id="emotion-grid" class="grid-2">
-            <!-- emotion buttons injected -->
-          </div>
-        </div>
-
-        <div id="body-panel" style="display:none; margin-top:12px;">
-          <div class="body-wrap">
-            <!-- SVG 人體示意 -->
-            <svg class="body-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="false" role="img">
-              <!-- simplified body -->
-              <defs>
-                <style>.b{stroke:#c9b29a; stroke-width:3; fill:#fff0e6;}</style>
-              </defs>
-              <g transform="translate(0,10)">
-                <ellipse cx="100" cy="50" rx="36" ry="30" fill="#fff" stroke="#c9b29a" stroke-width="2"></ellipse>
-                <rect x="64" y="80" width="72" height="100" rx="22" ry="22" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-                <rect x="40" y="190" width="120" height="160" rx="20" ry="20" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-                <!-- left arm -->
-                <rect x="8" y="90" width="28" height="110" rx="14" ry="14" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-                <!-- right arm -->
-                <rect x="164" y="90" width="28" height="110" rx="14" ry="14" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-                <!-- left leg -->
-                <rect x="60" y="350" width="30" height="70" rx="12" ry="12" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-                <!-- right leg -->
-                <rect x="110" y="350" width="30" height="70" rx="12" ry="12" fill="#fff" stroke="#c9b29a" stroke-width="2"></rect>
-              </g>
-
-              <!-- hotspots (transparent shapes covering regions) -->
-              <g id="hotspots" fill="transparent" stroke="none">
-                <!-- head -->
-                <ellipse class="body-hotspot" id="hot_head" cx="100" cy="50" rx="36" ry="30"></ellipse>
-                <!-- chest -->
-                <rect class="body-hotspot" id="hot_chest" x="64" y="80" width="72" height="60" rx="12" ry="12"></rect>
-                <!-- abdomen -->
-                <rect class="body-hotspot" id="hot_abdomen" x="64" y="140" width="72" height="60" rx="12" ry="12"></rect>
-                <!-- left hand -->
-                <rect class="body-hotspot" id="hot_lhand" x="8" y="160" width="28" height="60" rx="12" ry="12"></rect>
-                <!-- right hand -->
-                <rect class="body-hotspot" id="hot_rhand" x="164" y="160" width="28" height="60" rx="12" ry="12"></rect>
-                <!-- left leg -->
-                <rect class="body-hotspot" id="hot_lleg" x="60" y="350" width="30" height="70" rx="12" ry="12"></rect>
-                <!-- right leg -->
-                <rect class="body-hotspot" id="hot_rleg" x="110" y="350" width="30" height="70" rx="12" ry="12"></rect>
-              </g>
-            </svg>
-          </div>
-
-          <div style="margin-top:10px; color:#6b5a46; font-size:13px;">點選身體部位，App 會朗讀如「我頭痛」「我右手麻」</div>
-        </div>
-      </section>
-
-      <section id="builder-section" class="card" style="display:none;" aria-hidden="true">
-        <div class="section-title">組合句子</div>
-        <div style="margin-bottom:10px; color:#6b5a46;">點選詞彙建立句子，也可在此朗讀或儲存成「我的常用句」。</div>
-
-        <div class="sentence-area" id="sentence-area" style="min-height:72px; margin-bottom:12px;">
-          <!-- chips -->
-        </div>
-
-        <div style="display:flex; gap:8px; margin-bottom:12px;">
-          <button id="speak-btn" class="word-btn" style="flex:1; min-height:56px;">🔊 朗讀</button>
-          <button id="undo-btn" class="word-btn" style="min-width:120px; background:#fff2d6; color:#3d2f20;">⬅️ 刪除</button>
-          <button id="clear-btn" class="word-btn" style="min-width:120px; background:#ffe4b3; color:#3d2f20;">❌ 清除</button>
-        </div>
-
-        <div id="builder-grid" class="grid-2">
-          <!-- builder words injected -->
-        </div>
-      </section>
-
-      <section id="settings-section" class="card" style="display:none;" aria-hidden="true">
-        <div class="section-title">設定</div>
-
-        <div style="margin-bottom:12px;">
-          <label for="lang-select" style="display:block; margin-bottom:6px;">朗讀語言</label>
-          <select id="lang-select" class="select" style="width:100%; padding:10px; border-radius:12px; border:1px solid rgba(0,0,0,0.05);">
-            <option value="zh-TW">中文（台灣）</option>
-            <option value="en-US">English</option>
-            <option value="id-ID">Bahasa Indonesia</option>
-            <option value="vi-VN">Tiếng Việt</option>
-            <option value="tl-PH">Tagalog</option>
-          </select>
-        </div>
-
-        <div style="margin-bottom:12px;">
-          <label style="display:block; margin-bottom:6px;">按鈕大小</label>
-          <div style="display:flex; gap:8px;">
-            <button class="word-btn" id="size-small" style="flex:1; min-height:48px;">小</button>
-            <button class="word-btn" id="size-medium" style="flex:1; min-height:48px;">中（預設）</button>
-            <button class="word-btn" id="size-large" style="flex:1; min-height:48px;">大</button>
-          </div>
-        </div>
-
-        <div style="margin-top:8px;">
-          <button id="voice-test" class="word-btn" style="width:100%;">🔈 試聽朗讀（測試台灣語音）</button>
-        </div>
-      </section>
-
-    </div>
+      <div style="margin-top:6px;color:#7a6a55;font-size:13px;">預設狀況：痛、麻、癢、痠（可自行新增/刪除）。</div>
+    </section>
   </main>
 
-  <!-- bottom nav: 一鍵求助 ｜ 情緒/身體 ｜ 組合句子 ｜ 設定 -->
   <nav class="bottom-nav" role="navigation" aria-label="主要功能">
-    <button class="nav-btn" id="nav-quick" aria-pressed="true">
-      <div style="font-size:18px;">🏠</div>
-      一鍵求助
-    </button>
-    <button class="nav-btn" id="nav-emotion">
-      <div style="font-size:18px;">💓</div>
-      情緒 / 身體
-    </button>
-    <button class="nav-btn" id="nav-builder">
-      <div style="font-size:18px;">💬</div>
-      組合句子
-    </button>
-    <button class="nav-btn" id="nav-settings">
-      <div style="font-size:18px;">⚙️</div>
-      設定
-    </button>
+    <button class="nav-btn active" id="nav-quick"> <div style="font-size:18px;">🏠</div> 一鍵求助</button>
+    <button class="nav-btn" id="nav-emotion"> <div style="font-size:18px;">💓</div> 情緒 / 身體</button>
+    <button class="nav-btn" id="nav-builder"> <div style="font-size:18px;">💬</div> 組合句子</button>
+    <button class="nav-btn" id="nav-settings"> <div style="font-size:18px;">⚙️</div> 設定</button>
   </nav>
-
-  <!-- modal template for custom words -->
-  <div id="modal" style="display:none;" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div style="font-weight:700; margin-bottom:8px;">新增詞彙</div>
-      <input id="modal-zh" placeholder="中文（必填）" style="width:100%; padding:10px; border-radius:10px; border:1px solid rgba(0,0,0,0.06); margin-bottom:8px;">
-      <input id="modal-foreign" placeholder="外語（選填）" style="width:100%; padding:10px; border-radius:10px; border:1px solid rgba(0,0,0,0.06); margin-bottom:12px;">
-      <div style="display:flex; gap:8px;">
-        <button id="modal-save" class="word-btn" style="flex:1;">儲存</button>
-        <button id="modal-cancel" class="word-btn" style="flex:1; background:#fff2f0;">取消</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-/* AAC v30 — JS
-   功能重點：
-   - 快速按鈕（quick）
-   - 情緒板 + 人體熱點（emotion）
-   - 組合句子 (builder)
-   - 語音選擇：優先 zh-TW 台灣口音（若可用）
-   - iPad/桌面以寬度自動雙欄顯示（樣式在 CSS）
+/* AAC v31 JS
+   - Quick buttons only speak (no push to builder)
+   - Emotion buttons speak (no push to builder)
+   - Body hotspots -> popup near click -> choose status (status list is editable in settings)
+   - Status words default: 痛, 麻, 癢, 痠 (can add/delete)
+   - Speech: localized according to selected language (fallback to zh-TW)
 */
 
-/* --- 初始詞彙（保留原 emoji 與多語） --- */
+/* ---------- initial data ---------- */
 const QUICK = [
-  {id:'help', emoji:'🆘', zh:'幫我', en:'Help me'},
-  {id:'pain', emoji:'😫', zh:'我痛', en:"I'm in pain"},
-  {id:'pee', emoji:'🚽', zh:'我想小便', en:"I need to pee"},
-  {id:'poop', emoji:'💩', zh:'我想大便', en:"I need to poop"},
-  {id:'thirsty', emoji:'💧', zh:'我渴了', en:"I'm thirsty"},
-  {id:'hungry', emoji:'😋', zh:'我餓了', en:"I'm hungry"},
-  {id:'breathless', emoji:'😮‍💨', zh:'呼吸困難', en:"Difficulty breathing"}
+  {id:'help', emoji:'🆘', text:{'zh-TW':'幫我','en-US':'Help me','id-ID':'Tolong saya','vi-VN':'Giúp tôi','tl-PH':'Tulungan mo ako'}},
+  {id:'pain', emoji:'😫', text:{'zh-TW':'我痛','en-US':"I'm in pain",'id-ID':'Saya sakit','vi-VN':'Tôi đau','tl-PH':'Masakit ako'}},
+  {id:'pee', emoji:'🚽', text:{'zh-TW':'我想小便','en-US':"I need to pee",'id-ID':'Saya mau buang air kecil','vi-VN':'Tôi muốn đi tiểu','tl-PH':'Gusto kong umihi'}},
+  {id:'poop', emoji:'💩', text:{'zh-TW':'我想大便','en-US':"I need to poop",'id-ID':'Saya mau buang air besar','vi-VN':'Tôi muốn đi đại tiện','tl-PH':'Gusto kong dumumi'}},
+  {id:'thirsty', emoji:'💧', text:{'zh-TW':'我渴了','en-US':"I'm thirsty",'id-ID':'Saya haus','vi-VN':'Tôi khát','tl-PH':'Nauuhaw ako'}},
+  {id:'hungry', emoji:'😋', text:{'zh-TW':'我餓了','en-US':"I'm hungry",'id-ID':'Saya lapar','vi-VN':'Tôi đói','tl-PH':'Gutom ako'}},
+  {id:'breathless', emoji:'😮‍💨', text:{'zh-TW':'呼吸困難','en-US':'Difficulty breathing','id-ID':'Susah bernapas','vi-VN':'Khó thở','tl-PH':'Nahihirapang huminga'}}
 ];
-
-const BUILDER = {
-  "主詞":[{id:'me', zh:'我'},{id:'you', zh:'你'},{id:'doctor', zh:'醫生'}],
-  "動詞/需求":[{id:'want', zh:'想'},{id:'need', zh:'要'},{id:'eat', zh:'吃'},{id:'drink', zh:'喝'}],
-  "感受":[{id:'pain', zh:'痛'},{id:'cold', zh:'冷'},{id:'tired', zh:'累'}],
-  "物品":[{id:'water', zh:'水'},{id:'bed', zh:'床'}]
-};
 
 const EMOTIONS = [
-  {id:'sad', emoji:'😢', zh:'難過', sentence:'我覺得難過'},
-  {id:'angry', emoji:'😡', zh:'生氣', sentence:'我覺得生氣'},
-  {id:'happy', emoji:'😄', zh:'開心', sentence:'我覺得很開心'},
-  {id:'sleepy', emoji:'🥱', zh:'想睡', sentence:'我想睡覺'},
-  {id:'anxious', emoji:'😖', zh:'緊張', sentence:'我覺得很緊張'},
-  {id:'lonely', emoji:'😟', zh:'寂寞', sentence:'我覺得很寂寞'}
+  {id:'sad', emoji:'😢', texts:{'zh-TW':'我覺得難過','en-US':'I feel sad','id-ID':'Saya sedih','vi-VN':'Tôi buồn','tl-PH':'Nalulungkot ako'}},
+  {id:'angry', emoji:'😡', texts:{'zh-TW':'我覺得生氣','en-US':'I feel angry','id-ID':'Saya marah','vi-VN':'Tôi tức giận','tl-PH':'Galit ako'}},
+  {id:'happy', emoji:'😄', texts:{'zh-TW':'我覺得很開心','en-US':'I feel happy','id-ID':'Saya senang','vi-VN':'Tôi vui','tl-PH':'Masaya ako'}},
+  {id:'sleepy', emoji:'🥱', texts:{'zh-TW':'我想睡覺','en-US':'I want to sleep','id-ID':'Saya ingin tidur','vi-VN':'Tôi muốn ngủ','tl-PH':'Gusto kong matulog'}},
+  {id:'anxious', emoji:'😖', texts:{'zh-TW':'我覺得很緊張','en-US':'I feel anxious','id-ID':'Saya cemas','vi-VN':'Tôi lo lắng','tl-PH':'Nababahala ako'}},
+  {id:'lonely', emoji:'😟', texts:{'zh-TW':'我覺得很寂寞','en-US':'I feel lonely','id-ID':'Saya kesepian','vi-VN':'Tôi cô đơn','tl-PH':'Nalulungkot ako'}}
 ];
 
-/* 身體部位對應句 */
-const BODY_MAP = {
-  hot_head: {label:'頭', sentence:'我頭痛'},
-  hot_chest: {label:'胸口', sentence:'我胸悶'},
-  hot_abdomen: {label:'肚子', sentence:'我肚子痛'},
-  hot_lhand: {label:'左手', sentence:'我左手麻'},
-  hot_rhand: {label:'右手', sentence:'我右手麻'},
-  hot_lleg: {label:'左腳', sentence:'我左腳痛'},
-  hot_rleg: {label:'右腳', sentence:'我右腳痛'}
+/* default status list (can edit in settings) */
+let STATUS_LIST = JSON.parse(localStorage.getItem('aac_status_list') || 'null') || [
+  {key:'pain', label:{'zh-TW':'痛','en-US':'hurt','id-ID':'sakit','vi-VN':'đau','tl-PH':'masakit'}},
+  {key:'numb', label:{'zh-TW':'麻','en-US':'numb','id-ID':'mati rasa','vi-VN':'tê','tl-PH':'manhid'}},
+  {key:'itch', label:{'zh-TW':'癢','en-US':'itchy','id-ID':'gatal','vi-VN':'ngứa','tl-PH':'makating'}},
+  {key:'sore', label:{'zh-TW':'痠','en-US':'sore','id-ID':'pegal','vi-VN':'mỏi','tl-PH':'sakit/masakit'}},
+];
+
+/* body part mapping - sentence templates per language */
+const BODY_PARTS = {
+  hs_head: {id:'head', label:{'zh-TW':'頭','en-US':'head','id-ID':'kepala','vi-VN':'đầu','tl-PH':'ulo'}, template:{'zh-TW':(part,stat)=>`${part}${stat}`, 'en-US':(part,stat)=>`${part} ${stat}`, 'default':(p,s)=>p+' '+s}},
+  hs_chest: {id:'chest', label:{'zh-TW':'胸口','en-US':'chest','id-ID':'dada','vi-VN':'ngực','tl-PH':'dibdib'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
+  hs_abdomen: {id:'abdomen', label:{'zh-TW':'肚子','en-US':'stomach','id-ID':'perut','vi-VN':'bụng','tl-PH':'tiyan'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
+  hs_lhand: {id:'lhand', label:{'zh-TW':'左手','en-US':'left hand','id-ID':'tangan kiri','vi-VN':'tay trái','tl-PH':'kaliwang kamay'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
+  hs_rhand: {id:'rhand', label:{'zh-TW':'右手','en-US':'right hand','id-ID':'tangan kanan','vi-VN':'tay phải','tl-PH':'kanang kamay'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
+  hs_lleg: {id:'lleg', label:{'zh-TW':'左腳','en-US':'left leg','id-ID':'kaki kiri','vi-VN':'chân trái','tl-PH':'kaliwang paa'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
+  hs_rleg: {id:'rleg', label:{'zh-TW':'右腳','en-US':'right leg','id-ID':'kaki kanan','vi-VN':'chân phải','tl-PH':'kanang paa'}, template:{'zh-TW':(p,s)=>`${p}${s}`,'en-US':(p,s)=>`${p} ${s}`}},
 };
 
-/* --- state --- */
+/* builder data */
+const BUILDER = {
+  "主詞":[{id:'me',zh:'我'},{id:'you',zh:'你'},{id:'doctor',zh:'醫生'}],
+  "動詞/需求":[{id:'want',zh:'想'},{id:'need',zh:'要'},{id:'eat',zh:'吃'},{id:'drink',zh:'喝'}],
+  "感受":[{id:'pain',zh:'痛'},{id:'cold',zh:'冷'},{id:'tired',zh:'累'}],
+  "物品":[{id:'water',zh:'水'},{id:'bed',zh:'床'}]
+};
+
+/* ---------- state ---------- */
 let currentLang = localStorage.getItem('aac_lang') || 'zh-TW';
+let voices = window.speechSynthesis.getVoices() || [];
 let currentSentence = [];
-let synth = window.speechSynthesis;
-let voices = [];
 
 /* DOM refs */
 const quickGrid = document.getElementById('quick-grid');
+const emotionGrid = document.getElementById('emotion-grid');
 const builderGrid = document.getElementById('builder-grid');
-const builderSection = document.getElementById('builder-section');
-const quickSection = document.getElementById('quick-section');
-const emotionSection = document.getElementById('emotion-section');
-const settingsSection = document.getElementById('settings-section');
 const sentenceArea = document.getElementById('sentence-area');
-
-const navQuick = document.getElementById('nav-quick');
-const navEmotion = document.getElementById('nav-emotion');
-const navBuilder = document.getElementById('nav-builder');
-const navSettings = document.getElementById('nav-settings');
-
-const tabs = document.querySelectorAll('.tab');
-
 const langSelect = document.getElementById('lang-select');
+const statusTags = document.getElementById('status-tags');
+const newStatusInput = document.getElementById('new-status-input');
+const addStatusBtn = document.getElementById('add-status-btn');
+
 langSelect.value = currentLang;
 
-/* load voices */
+/* load voices (some browsers load asynchronously) */
 function loadVoices(){
-  voices = synth.getVoices() || [];
+  voices = window.speechSynthesis.getVoices() || [];
 }
 loadVoices();
-if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+if(window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoices;
 
-/* helper: attempt to pick a zh-TW voice; fallback gracefully */
+/* pick voice for language preference (try to favor zh-TW) */
 function pickVoiceForLang(lang){
-  // Ensure voices loaded
-  const v = voices.slice();
-  if(!v.length) return null;
-  // prefer exact match with zh-TW and likely "Google" or contains "Taiwan" in name
+  if(!voices.length) return null;
   if(lang === 'zh-TW'){
-    let candidate = v.find(x => x.lang === 'zh-TW' && (x.name.includes('Google') || /Taiwan|台灣|zh_TW|Taiwanese/i.test(x.name)));
-    if(candidate) return candidate;
-    candidate = v.find(x => x.lang.startsWith('zh') && (x.name.includes('Google') || /Taiwan|台灣|zh_TW|Taiwanese/i.test(x.name)));
-    if(candidate) return candidate;
-    // otherwise first zh voice
-    candidate = v.find(x => x.lang.startsWith('zh'));
-    if(candidate) return candidate;
+    let v = voices.find(v=>v.lang==='zh-TW' && (/Google|Taiwan|台灣|Zhuyin|Hsin|Yun/i.test(v.name)));
+    if(v) return v;
+    v = voices.find(v=>v.lang.startsWith('zh'));
+    if(v) return v;
   } else {
-    // non-zh: try exact lang, else prefix
-    let candidate = v.find(x => x.lang === lang || x.lang.startsWith(lang.split('-')[0]));
-    if(candidate) return candidate;
+    let v = voices.find(v=>v.lang===lang || v.lang.startsWith(lang.split('-')[0]));
+    if(v) return v;
   }
-  // fallback to first available
-  return v[0];
+  return voices[0];
 }
 
-function speak(text, opts = {}){
+/* speak localized text object or plain string */
+function speakLocalized(textObj, langOverride){
+  if(!textObj) return;
+  const lang = langOverride || currentLang || 'zh-TW';
+  let text;
+  if(typeof textObj === 'string') text = textObj;
+  else {
+    text = textObj[lang] || textObj[lang.split('-')[0]] || textObj['zh-TW'] || Object.values(textObj)[0];
+  }
   if(!text) return;
-  // vibrate for tactile feedback if available
   if(navigator.vibrate) navigator.vibrate(40);
   const utt = new SpeechSynthesisUtterance(text);
-  const lang = opts.lang || currentLang || 'zh-TW';
   utt.lang = lang;
   const voice = pickVoiceForLang(lang);
   if(voice) utt.voice = voice;
-  // reading rate - chinese slightly faster
-  utt.rate = (lang === 'zh-TW') ? 0.9 : 0.85;
-  // flash UI element if provided
-  if(opts.el){
-    opts.el.classList.add('flash');
-    setTimeout(()=>opts.el.classList.remove('flash'), 320);
-  }
-  // speak (cancel previous)
-  try{ synth.cancel(); } catch(e){}
-  synth.speak(utt);
+  utt.rate = (lang==='zh-TW')?0.9:0.85;
+  try{ window.speechSynthesis.cancel(); } catch(e){}
+  window.speechSynthesis.speak(utt);
 }
 
-/* render quick buttons */
+/* ---------- rendering ---------- */
 function renderQuick(){
   quickGrid.innerHTML = '';
-  QUICK.forEach(w=>{
+  QUICK.forEach(item=>{
     const btn = document.createElement('button');
     btn.className = 'word-btn';
-    btn.innerHTML = `<div class="word-emoji">${w.emoji}</div><div class="word-label">${w.zh}</div>`;
-    btn.onclick = ()=> {
-      speak(w[currentLang.split('-')[0] === 'zh' ? 'zh' : 'en'], {el:btn});
-      // for critical ones (help/pain) also append to sentence
-      if(w.id === 'help' || w.id === 'pain'){
-        pushToSentence({text:w.zh});
-      }
+    btn.innerHTML = `<div class="word-emoji">${item.emoji}</div><div class="word-label">${item.text['zh-TW']}</div>`;
+    btn.onclick = ()=>{
+      // 重要：快速語句只朗讀，不加入組合句
+      speakLocalized(item.text);
+      btn.classList.add('flash'); setTimeout(()=>btn.classList.remove('flash'),320);
     };
     quickGrid.appendChild(btn);
   });
 }
 
-/* render builder grid */
+function renderEmotions(){
+  emotionGrid.innerHTML = '';
+  EMOTIONS.forEach(e=>{
+    const btn = document.createElement('button');
+    btn.className='word-btn';
+    btn.innerHTML = `<div class="word-emoji">${e.emoji}</div><div class="word-label">${e.texts['zh-TW']}</div>`;
+    btn.onclick = ()=> {
+      speakLocalized(e.texts);
+      btn.classList.add('flash'); setTimeout(()=>btn.classList.remove('flash'),320);
+      // 不加入組合句
+    };
+    emotionGrid.appendChild(btn);
+  });
+}
+
 function renderBuilder(){
   builderGrid.innerHTML = '';
   for(const cat in BUILDER){
-    const group = BUILDER[cat];
-    group.forEach(item=>{
+    const arr = BUILDER[cat];
+    arr.forEach(item=>{
       const btn = document.createElement('button');
-      btn.className = 'word-btn';
+      btn.className='word-btn';
       btn.innerHTML = `<div class="word-label">${item.zh}</div>`;
       btn.onclick = ()=> {
         pushToSentence({text:item.zh});
       };
       builderGrid.appendChild(btn);
     });
-    // add "新增" for each category (simple global modal)
     const addBtn = document.createElement('button');
-    addBtn.className = 'word-btn';
-    addBtn.style.background = '#fff8f0';
-    addBtn.innerHTML = `<div class="word-label">＋ 新增詞彙</div>`;
-    addBtn.onclick = ()=> showModal();
+    addBtn.className='word-btn';
+    addBtn.style.background='#fff8f0';
+    addBtn.innerHTML=`<div class="word-label">＋ 新增詞彙</div>`;
+    addBtn.onclick = ()=> showAddModal();
     builderGrid.appendChild(addBtn);
   }
 }
 
-/* push to sentence */
-function pushToSentence(wordObj){
-  currentSentence.push(wordObj);
+/* sentence functions */
+function pushToSentence(obj){
+  currentSentence.push(obj);
   refreshSentenceUI();
 }
-
-/* refresh sentence UI */
 function refreshSentenceUI(){
-  sentenceArea.innerHTML = '';
-  if(currentSentence.length === 0){
-    sentenceArea.innerHTML = '<div style="color:#9b8b76;">（尚未新增詞彙）</div>';
-    return;
-  }
-  currentSentence.forEach((w, idx)=>{
-    const chip = document.createElement('div');
-    chip.className = 'sentence-chip';
-    chip.textContent = w.text || w.zh || w;
-    chip.onclick = ()=> {
-      // optional: remove if tapped long? simple remove on click with confirm
-      currentSentence.splice(idx,1);
-      refreshSentenceUI();
-    };
+  sentenceArea.innerHTML='';
+  if(currentSentence.length===0){ sentenceArea.innerHTML='<div style="color:#9b8b76;">（尚未新增詞彙）</div>'; return; }
+  currentSentence.forEach((w,i)=>{
+    const chip=document.createElement('div'); chip.className='sentence-chip'; chip.textContent = w.text || w;
+    chip.onclick = ()=>{ currentSentence.splice(i,1); refreshSentenceUI(); };
     sentenceArea.appendChild(chip);
   });
 }
 
-/* nav handlers */
+/* nav */
+const navQuick = document.getElementById('nav-quick'), navEmotion = document.getElementById('nav-emotion'), navBuilder = document.getElementById('nav-builder'), navSettings = document.getElementById('nav-settings');
+function clearNav(){ [navQuick,navEmotion,navBuilder,navSettings].forEach(n=>n.classList.remove('active')); }
+function showView(name){
+  clearNav();
+  document.getElementById('quick-section').style.display='none';
+  document.getElementById('emotion-section').style.display='none';
+  document.getElementById('builder-section').style.display='none';
+  document.getElementById('settings-section').style.display='none';
+  if(name==='quick'){ navQuick.classList.add('active'); document.getElementById('quick-section').style.display='block'; }
+  if(name==='emotion'){ navEmotion.classList.add('active'); document.getElementById('emotion-section').style.display='block'; }
+  if(name==='builder'){ navBuilder.classList.add('active'); document.getElementById('builder-section').style.display='block'; }
+  if(name==='settings'){ navSettings.classList.add('active'); document.getElementById('settings-section').style.display='block'; }
+  document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+}
 navQuick.addEventListener('click', ()=> showView('quick'));
 navEmotion.addEventListener('click', ()=> showView('emotion'));
 navBuilder.addEventListener('click', ()=> showView('builder'));
 navSettings.addEventListener('click', ()=> showView('settings'));
 
-function clearActiveNav(){
-  [navQuick, navEmotion, navBuilder, navSettings].forEach(n=>n.classList.remove('active'));
-}
-function showView(name){
-  clearActiveNav();
-  document.getElementById('quick-section').style.display='none';
-  document.getElementById('emotion-section').style.display='none';
-  document.getElementById('builder-section').style.display='none';
-  document.getElementById('settings-section').style.display='none';
-
-  if(name === 'quick'){
-    navQuick.classList.add('active');
-    document.getElementById('quick-section').style.display='block';
-    document.getElementById('quick-section').setAttribute('aria-hidden','false');
-  } else if(name === 'emotion'){
-    navEmotion.classList.add('active');
-    document.getElementById('emotion-section').style.display='block';
-    document.getElementById('emotion-section').setAttribute('aria-hidden','false');
-  } else if(name === 'builder'){
-    navBuilder.classList.add('active');
-    document.getElementById('builder-section').style.display='block';
-    document.getElementById('builder-section').setAttribute('aria-hidden','false');
-  } else if(name === 'settings'){
-    navSettings.classList.add('active');
-    document.getElementById('settings-section').style.display='block';
-    document.getElementById('settings-section').setAttribute('aria-hidden','false');
-  }
-  // scroll to top for readability
-  document.getElementById('main').scrollTo({top:0, behavior:'smooth'});
-}
-
-/* emotion render */
-function renderEmotions(){
-  const grid = document.getElementById('emotion-grid');
-  grid.innerHTML = '';
-  EMOTIONS.forEach(e=>{
-    const btn = document.createElement('button');
-    btn.className = 'word-btn';
-    btn.innerHTML = `<div class="word-emoji">${e.emoji}</div><div class="word-label">${e.zh}</div>`;
-    btn.onclick = ()=> {
-      speak(e.sentence);
-      pushToSentence({text:e.sentence});
-    };
-    grid.appendChild(btn);
-  });
-}
-
-/* body hotspots */
-Object.keys(BODY_MAP).forEach(k=>{
-  const el = document.getElementById(k);
-  if(!el) return;
-  el.addEventListener('click', ()=>{
-    const info = BODY_MAP[k];
-    // visual feedback
-    el.classList.add('hot-active');
-    setTimeout(()=>el.classList.remove('hot-active'), 300);
-    speak(info.sentence);
-    pushToSentence({text: info.sentence});
-  });
-  // also keyboard accessible
-  el.setAttribute('tabindex', 0);
-  el.addEventListener('keydown', (ev)=>{
-    if(ev.key === 'Enter' || ev.key === ' '){
-      ev.preventDefault();
-      el.click();
-    }
-  });
-});
-
 /* tabs for emotion/body */
-tabs.forEach(t=>{
-  t.addEventListener('click', ()=> {
-    tabs.forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    const tab = t.dataset.tab;
-    if(tab === 'emotion'){ document.getElementById('emotion-panel').style.display='block'; document.getElementById('body-panel').style.display='none'; }
+    if(t.dataset.tab==='emotion'){ document.getElementById('emotion-panel').style.display='block'; document.getElementById('body-panel').style.display='none'; }
     else { document.getElementById('emotion-panel').style.display='none'; document.getElementById('body-panel').style.display='block'; }
   });
 });
 
-/* settings controls */
-document.getElementById('voice-test').addEventListener('click', ()=> {
-  speak('這是語音測試，現在使用台灣中文發音。', {lang:'zh-TW'});
+/* settings: status tags */
+function renderStatusTags(){
+  statusTags.innerHTML='';
+  STATUS_LIST.forEach((st,idx)=>{
+    const tag = document.createElement('div'); tag.className='tag';
+    const label = document.createElement('div'); label.textContent = st.label['zh-TW'];
+    const rm = document.createElement('button'); rm.className='remove'; rm.textContent='✕';
+    rm.onclick = ()=> { STATUS_LIST.splice(idx,1); saveStatuses(); renderStatusTags(); };
+    tag.appendChild(label); tag.appendChild(rm);
+    statusTags.appendChild(tag);
+  });
+}
+function saveStatuses(){ localStorage.setItem('aac_status_list', JSON.stringify(STATUS_LIST)); }
+
+/* add new status */
+addStatusBtn.addEventListener('click', ()=>{
+  const v = newStatusInput.value.trim();
+  if(!v) return;
+  // add default translations = use same text for other langs (user can adjust later if need)
+  const key = 's_'+Date.now();
+  const obj = {key, label:{'zh-TW':v,'en-US':v,'id-ID':v,'vi-VN':v,'tl-PH':v}};
+  STATUS_LIST.push(obj); saveStatuses(); renderStatusTags(); newStatusInput.value='';
 });
 
-langSelect.addEventListener('change', ()=>{
-  currentLang = langSelect.value;
-  localStorage.setItem('aac_lang', currentLang);
-});
-
-/* size buttons */
-document.getElementById('size-small').addEventListener('click', ()=> setBtnSize('small'));
-document.getElementById('size-medium').addEventListener('click', ()=> setBtnSize('medium'));
-document.getElementById('size-large').addEventListener('click', ()=> setBtnSize('large'));
-
-function setBtnSize(size){
-  const styleMap = {
-    small: {min:'56px', font:'16px'},
-    medium: {min:'68px', font:'18px'},
-    large: {min:'86px', font:'20px'}
-  };
-  const s = styleMap[size];
-  document.querySelectorAll('.word-btn').forEach(b=>{
-    b.style.minHeight = s.min;
-    b.style.fontSize = s.font;
+/* body hotspots behavior - show popup near click with status options */
+function attachHotspots(){
+  Object.keys(BODY_PARTS).forEach(hsId=>{
+    const el = document.getElementById(hsId);
+    if(!el) return;
+    el.style.pointerEvents='auto';
+    el.setAttribute('tabindex',0);
+    el.addEventListener('click',(ev)=>{
+      ev.stopPropagation();
+      openStatusPopupNear(ev.clientX, ev.clientY, hsId);
+    });
+    el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); const rect = el.getBoundingClientRect(); openStatusPopupNear(rect.left + rect.width/2, rect.top + rect.height/2, hsId); } });
   });
 }
 
-/* builder actions */
-document.getElementById('speak-btn').addEventListener('click', ()=>{
-  if(currentSentence.length === 0) {
-    speak('尚未有句子');
-    return;
-  }
-  // join by '' for Chinese
-  const txt = currentSentence.map(c => c.text || c.zh || c).join('');
-  speak(txt, {lang: currentLang});
-});
-document.getElementById('undo-btn').addEventListener('click', ()=>{
-  currentSentence.pop();
-  refreshSentenceUI();
-});
-document.getElementById('clear-btn').addEventListener('click', ()=>{
-  if(confirm('確認要清除句子嗎？')){
-    currentSentence = [];
-    refreshSentenceUI();
-  }
-});
-
-/* modal: new custom word */
-const modal = document.getElementById('modal');
-const modalSave = document.getElementById('modal-save');
-const modalCancel = document.getElementById('modal-cancel');
-function showModal(){ modal.style.display='flex'; document.getElementById('modal-zh').focus(); }
-modalCancel.addEventListener('click', ()=> modal.style.display='none');
-modalSave.addEventListener('click', ()=>{
-  const zh = document.getElementById('modal-zh').value.trim();
-  const foreign = document.getElementById('modal-foreign').value.trim();
-  if(!zh){ alert('中文為必填'); return; }
-  // push to builder first category (簡單實作)
-  BUILDER['主詞'].push({id:'custom_'+Date.now(), zh});
-  renderBuilder();
-  modal.style.display='none';
-});
-
-/* initial render */
-renderQuick();
-renderBuilder();
-renderEmotions();
-refreshSentenceUI();
-showView('quick');
-
-/* ensure body hotspots listeners exist after DOM paint */
-setTimeout(()=>{
-  Object.keys(BODY_MAP).forEach(k=>{
-    const el = document.getElementById(k);
-    if(el){
-      // ensure pointer events
-      el.style.pointerEvents = 'auto';
-    }
+/* create popup and position near click; clickable statuses reflect chosen language */
+let currentPopup = null;
+function openStatusPopupNear(x,y, hsId){
+  closeCurrentPopup();
+  const popup = document.createElement('div'); popup.className='popup'; popup.style.left = (x+8)+'px'; popup.style.top = (y+8)+'px';
+  // status buttons from STATUS_LIST
+  STATUS_LIST.forEach(st=>{
+    const btn = document.createElement('button'); btn.className='status-btn'; btn.textContent = st.label['zh-TW']; // default label shown in UI
+    btn.onclick = ()=>{
+      // compose sentence according to language
+      const partInfo = BODY_PARTS[hsId];
+      const lang = currentLang || 'zh-TW';
+      const partLabel = partInfo.label[lang] || partInfo.label['zh-TW'];
+      // find status label in selected lang
+      const statusLabel = st.label[lang] || st.label['zh-TW'];
+      // compose using template (for zh we prefer concatenation w/o space)
+      const templateFn = partInfo.template[lang] || partInfo.template['en-US'] || partInfo.template['zh-TW'] || partInfo.template['default'];
+      const sentence = templateFn(partLabel, statusLabel);
+      speakLocalized( { [lang]: sentence, 'zh-TW': templateFn(partInfo.label['zh-TW'], st.label['zh-TW']) } , lang);
+      // visual feedback: highlight hotspot briefly
+      const el = document.getElementById(hsId); if(el){ el.classList.add('hot-active'); setTimeout(()=>el.classList.remove('hot-active'),300); }
+      closeCurrentPopup();
+    };
+    popup.appendChild(btn);
   });
-}, 150);
+  // allow clicking outside to close
+  document.body.appendChild(popup);
+  currentPopup = popup;
+  // adjust if overflow
+  const rect = popup.getBoundingClientRect();
+  if(rect.right > window.innerWidth - 8) popup.style.left = (x - rect.width - 8) + 'px';
+  if(rect.bottom > window.innerHeight - 8) popup.style.top = (y - rect.height - 8) + 'px';
+}
+function closeCurrentPopup(){ if(currentPopup){ currentPopup.remove(); currentPopup = null; } }
+document.addEventListener('click', ()=> closeCurrentPopup());
 
-/* accessibility: keyboard nav for bottom nav */
-[navQuick, navEmotion, navBuilder, navSettings].forEach((n, idx)=>{
-  n.setAttribute('tabindex', 0);
-  n.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') n.click(); });
+/* builder controls */
+document.getElementById('speak-btn').addEventListener('click', ()=>{
+  if(currentSentence.length===0){ speakLocalized({'zh-TW':'尚未有句子','en-US':'No sentence yet'}); return;}
+  // join Chinese without spaces; for non-zh use spaces
+  const lang = currentLang || 'zh-TW';
+  const txt = (lang==='zh-TW')? currentSentence.map(c=>c.text||c).join('') : currentSentence.map(c=>c.text||c).join(' ');
+  speakLocalized(txt, lang);
 });
+document.getElementById('undo-btn').addEventListener('click', ()=> { currentSentence.pop(); refreshSentenceUI(); });
+document.getElementById('clear-btn').addEventListener('click', ()=> { if(confirm('確認要清除句子嗎？')){ currentSentence=[]; refreshSentenceUI(); } });
 
-/* ensure voices loaded on some browsers */
-window.addEventListener('load', ()=>{ setTimeout(loadVoices, 200); });
+/* modal for adding builder words (simple inline) */
+function showAddModal(){ const zh = prompt('新增中文詞彙（例如：我要）'); if(zh){ BUILDER['主詞'].push({id:'custom_'+Date.now(), zh}); renderBuilder(); } }
+
+/* language select change */
+langSelect.addEventListener('change', ()=> { currentLang = langSelect.value; localStorage.setItem('aac_lang', currentLang); });
+
+/* helper speak wrapper */
+function speakLocalized(textOrObj, langOverride){
+  // Use the earlier defined function but ensure voices loaded
+  if(!window.speechSynthesis.getVoices().length) { setTimeout(()=>speakLocalized(textOrObj,langOverride),120); return; }
+  // pick language-specific string
+  let lang = langOverride || currentLang || 'zh-TW';
+  let text;
+  if(typeof textOrObj === 'string') text = textOrObj;
+  else text = textOrObj[lang] || textOrObj[lang.split('-')[0]] || textOrObj['zh-TW'] || Object.values(textOrObj)[0];
+  if(!text) return;
+  if(navigator.vibrate) navigator.vibrate(40);
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang;
+  const v = pickVoiceForLang(lang);
+  if(v) utt.voice = v;
+  utt.rate = (lang==='zh-TW')?0.9:0.85;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  window.speechSynthesis.speak(utt);
+}
+
+/* reuse pickVoiceForLang (slightly simplified) */
+function pickVoiceForLang(lang){
+  const vs = window.speechSynthesis.getVoices() || voices;
+  if(!vs.length) return null;
+  if(lang==='zh-TW'){
+    let c = vs.find(x=>x.lang==='zh-TW' && (/Google|Taiwan|台灣|zh_TW|Yun/i.test(x.name)));
+    if(c) return c;
+    c = vs.find(x=>x.lang.startsWith('zh'));
+    if(c) return c;
+  } else {
+    let c = vs.find(x=>x.lang===lang || x.lang.startsWith(lang.split('-')[0]));
+    if(c) return c;
+  }
+  return vs[0];
+}
+
+/* attach hotspots and initial render */
+function init(){
+  renderQuick(); renderEmotions(); renderBuilder(); refreshSentenceUI(); renderStatusTags(); attachHotspots();
+  // ensure currentLang stored
+  currentLang = localStorage.getItem('aac_lang') || currentLang;
+  document.getElementById('lang-select').value = currentLang;
+}
+init();
+
+/* ensure voices loaded later as well */
+window.addEventListener('load', ()=> { setTimeout(()=>{ loadVoices(); },200); });
+
+/* keyboard accessibility for bottom nav */
+[navQuick,navEmotion,navBuilder,navSettings].forEach(n=>{ n.setAttribute('tabindex',0); n.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') n.click(); }); });
 
 </script>
 </body>
