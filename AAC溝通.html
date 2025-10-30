@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>AAC 句子建構器 v29.1 (Emoji)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* v28: 套用思源黑體 */
+        html, body {
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            overflow: hidden;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", Roboto, Arial, sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* v28: 彈窗 (Modal) */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white; padding: 1.5rem; border-radius: 1rem;
+            width: calc(100% - 3rem); max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .modal-content h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: #111827; }
+        
+        /* v29: 抽取共用 Modal Input 樣式 */
+        .modal-input-style {
+            width: 100%; font-size: 1.125rem; padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db; border-radius: 0.75rem; box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .modal-input-style:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* --- v28: 主 App 佈局 --- */
+        .app-layout {
+            display: grid;
+            grid-template-rows: 1fr auto; /* [主要內容] [底部導覽] */
+            height: 100vh;
+            height: -webkit-fill-available;
+            box-sizing: border-box;
+            background-color: #f9fafb; /* bg-gray-50 */
+        }
+        /* v28: 主要內容區 (可滑動) */
+        main#app-content {
+            overflow-y: auto; /* 這是唯一的滑動區 */
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+        }
+        .quick-view, .builder-view, .settings-view {
+            height: auto; /* 讓內容撐開高度，使 main 可以滑動 */
+        }
+        
+        /* v28: 按鈕基底樣式 (實色按鈕) */
+        .btn {
+            display: flex; justify-content: center; align-items: center; text-align: center;
+            border: none; border-radius: 1rem; /* 16px */
+            font-weight: 700; padding: 1rem; cursor: pointer; user-select: none;
+            transition: all 0.1s ease;
+            min-height: 5rem; color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .btn:active {
+            transform: scale(0.97);
+            filter: brightness(1.1);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        /* v28: 詞彙網格 */
+        .quick-word-grid, .builder-word-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem; /* 20px */
+            padding: 1.25rem; /* 20px */
+        }
+        
+        /* --- v28: 按鈕大小 (由 JS 控制) --- */
+        .quick-word-btn, .builder-word-btn {
+            line-height: 1.3; /* v29.1: 調整行高以容納 Emoji */
+        }
+        
+        /* v28: 組合句子模式 */
+        /* v28: 句子顯示區 (不再黏性，改為內容的第一部分) */
+        .sentence-display-container {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+        .sentence-display {
+            min-height: 10rem; font-size: 3rem; font-weight: 500;
+            line-height: 3.5rem;
+            display: flex; align-items: center; color: #111827;
+            background-color: #f9fafb; /* bg-gray-50 */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            flex-wrap: wrap; /* v28: 允許雙語詞彙換行 */
+        }
+        /* v28: 組合句子功能按鈕 (移到句子區下方) */
+        .builder-fn-controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .builder-fn-btn {
+            border-radius: 0.75rem; font-size: 1rem; font-weight: 600;
+            min-height: 4.5rem; /* 72px */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        /* v29: 區分刪除按鈕 (黃色) */
+        .builder-fn-btn-delete {
+            background-color: #f59e0b; /* bg-amber-500 */
+            color: white;
+        }
+        .builder-fn-btn-delete:active {
+            background-color: #f59e0b; /* 保持顏色 */
+        }
+
+        /* v29: 雙語詞彙區塊 (堆疊排版) */
+        .word-block {
+            display: inline-flex; /* 改為 flex 容器 */
+            flex-direction: column; /* 垂直堆疊 */
+            align-items: center; /* 置中 */
+            padding: 0.25rem 0.5rem; /* 微調間距 */
+            margin-bottom: 0.5rem; /* 詞彙間的下間距 */
+            line-height: 1.2; /* 縮短行高 */
+        }
+        .word-block-zh {
+            font-size: 3rem; /* 保持 3rem */
+            font-weight: 500;
+        }
+        .word-block-lang {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 500;
+            color: #3b82f6; /* text-blue-600 */
+        }
+
+        /* v28: 類別分頁 (可自動換行) */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap; /* 自動換行 */
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            flex-shrink: 0;
+            gap: 0.5rem; /* 8px */
+            /* v28: 讓分頁黏在頂部 */
+            position: sticky; top: 0; z-index: 10;
+        }
+
+        .tab-btn {
+            flex-shrink: 0; margin: 0; padding: 0.625rem 1.25rem;
+            font-size: 1.125rem; font-weight: 500;
+            color: #4b5563; background-color: transparent; box-shadow: none;
+        }
+        .tab-btn.active {
+            background-color: white; color: #3b82f6; font-weight: 700;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* v28: 底部導覽列 (永久可見) */
+        .main-nav {
+            display: flex; border-top: 1px solid #e5e7eb;
+            background-color: #ffffff;
+            padding-bottom: env(safe-area-inset-bottom);
+            flex-shrink: 0;
+        }
+        /* v28: 主導覽列 (3 欄) */
+        .nav-btn {
+            flex: 1; flex-direction: column; padding: 0.5rem 0.5rem 0.25rem;
+            font-size: 1rem; border-radius: 0; min-height: 5rem;
+            color: #9ca3af; box-shadow: none; font-weight: 500;
+            background-color: white;
+        }
+        .nav-btn.active {
+            color: #3b82f6; background-color: white;
+        }
+        
+        /* v28: 設定頁面 */
+        .settings-view {
+            padding: 1.5rem;
+        }
+        .settings-view h2 {
+            font-size: 2rem; /* 32px */
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+        .settings-view h3 {
+            font-size: 1.125rem; /* 18px */
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .size-btn {
+            font-size: 1.125rem; font-weight: 600;
+            padding-top: 1.5rem; padding-bottom: 1.5rem;
+            background-color: white;
+            color: #3b82f6;
+            border: 2px solid #dbeafe;
+        }
+        .size-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        /* v28: 下拉選單樣式 */
+        .select-input {
+            width: 100%; font-size: 1.125rem; padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db; border-radius: 0.75rem; box-sizing: border-box;
+            background-color: white;
+            appearance: none; -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        .select-input:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* 動畫 */
+        .flash-sentence { animation: flash-sentence-animation 0.6s ease-out; }
+        @keyframes flash-sentence-animation { 0% { background-color: #e0e7ff; } 100% { background-color: #f9fafb; } }
+        
+        .flash-quick-btn { animation: flash-quick-btn-animation 0.4s ease-out; }
+        @keyframes flash-quick-btn-animation { 50% { transform: scale(1.02); filter: brightness(1.2); } }
+        
+        /* v29: 新增詞彙的動畫 */
+        .flash-add-word { animation: flash-add-word-animation 0.4s ease-out; }
+        @keyframes flash-add-word-animation { 
+            0% { background-color: #dbeafe; /* bg-blue-100 */ } 
+            100% { background-color: #f9fafb; /* bg-gray-50 */ } 
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div id="main-app-view" class="app-view">
+        <div class="app-layout">
+            
+            <main id="app-content">
+                
+                <div id="quick-actions-view" class="quick-view">
+                    <div id="quick-category-tabs" class="category-tabs"></div>
+                    <div id="quick-word-grid" class="quick-word-grid"></div>
+                </div>
+                
+                <div id="builder-view" class="builder-view hidden">
+                    <div class="sentence-display-container">
+                        <div id="sentence-display" class="sentence-display text-gray-900"></div>
+                        <div class="builder-fn-controls">
+                            <button id="speak-btn" class="btn builder-fn-btn flex-1 bg-blue-600 text-white shadow-lg shadow-blue-500/30">🔊 朗讀</button>
+                            <button id="delete-btn" class="btn builder-fn-btn w-1/4 builder-fn-btn-delete">⬅️ 刪除</button>
+                            <button id="clear-btn" class="btn builder-fn-btn w-1/4 bg-gray-200 text-gray-700 transition-colors duration-200">❌ 清除</button>
+                        </div>
+                    </div>
+                    
+                    <div id="builder-category-tabs" class="category-tabs"></div>
+                    
+                    <div id="builder-word-grid" class="builder-word-grid"></div>
+                </div>
+                
+                <div id="settings-view" class="settings-view hidden">
+                    <h2>設定</h2>
+                    
+                    <h3>按鈕大小</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button id="size-btn-small" class="btn size-btn">小<br>(易讀)</button>
+                        <button id="size-btn-medium" class="btn size-btn">中<br>(預設)</button>
+                        <button id="size-btn-large" class="btn size-btn">大<br>(防抖)</button>
+                    </div>
+
+                    <h3 class="mt-8">朗讀語言</h3>
+                    <p class="text-gray-600 mb-3">選擇 App 朗讀時所使用的語言（例如：給外籍照顧者聽）。</p>
+                    <select id="language-select" class="select-input">
+                        <option value="zh-TW">中文 (預設)</option>
+                        <option value="en-US">English (英語)</option>
+                        <option value="id-ID">Bahasa Indonesia (印尼語)</option>
+                        <option value="vi-VN">Tiếng Việt (越南語)</option>
+                        <option value="tl-PH">Tagalog (Filipino)</option>
+                    </select>
+
+                    <div class="mt-8 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="mt-0 border-none">關於自訂詞彙</h3>
+                        <p class="text-gray-600 mt-2">
+                            您可以在「組合句子」模式中，點擊任一類別（如「主詞」）的最後一個灰色按鈕「＋ 新增詞彙」，來加入您專屬的詞彙。
+                        </p>
+                        <p class="text-gray-600 mt-2">
+                            所有新增的詞彙都會自動儲存在這台裝置上。
+                        </p>
+                    </div>
+                </div>
+                
+            </main>
+            
+            <nav id="main-nav" class="main-nav">
+                <button id="nav-quick-btn" class="btn nav-btn active">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 20.25l1.5-6.75H3.75Z" />
+                    </svg>
+                    一鍵求助
+                </button>
+                <button id="nav-builder-btn" class="btn nav-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                    組合句子
+                </button>
+                <button id="nav-settings-btn" class="btn nav-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75a2.25 2.25 0 110 4.5 2.25 2.25 0 010-4.5z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12c0-1.036-.234-2.006-.653-2.875l.487-1.861a.217.217 0 00-.064-.228l-1.518-1.518a.217.217 0 00-.228-.064l-1.86.486A9.701 9.701 0 0012 5.625c-1.036 0-2.006.234-2.875.653l-1.86-.487a.217.217 0 00-.228.064L5.518 7.372a.217.217 0 00-.064.228l.486 1.861A9.701 9.701 0 005.625 12c0 1.036.234 2.006.653 2.875l-.486 1.861a.217.217 0 00.064.228l1.518 1.518a.217.217 0 00.228.064l1.86-.486A9.701 9.701 0 0012 18.375c1.036 0 2.006-.234 2.875-.653l1.86.486a.217.217 0 00.228-.064l1.518-1.518a.217.217 0 00.064-.228l-.486-1.861A9.701 9.701 0 0018.375 12z" />
+                    </svg>
+                    設定
+                </button>
+            </nav>
+            
+        </div>
+    </div>
+    
+    <div id="add-word-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">新增詞彙</h3>
+            
+            <label for="modal-input-zh" class="block mb-2 text-sm font-medium text-gray-700">中文 (必填)</label>
+            <input type="text" id="modal-input-zh" placeholder="請輸入新詞彙..." class="modal-input-style">
+            
+            <label for="modal-input-lang" class="block mt-4 mb-2 text-sm font-medium text-gray-700">
+                外語 (選填)
+                <span class="text-xs text-gray-500">(英語/印尼語/越南語等)</span>
+            </label>
+            <input type="text" id="modal-input-lang" placeholder="English / Bahasa / Tiếng Việt..." class="modal-input-style">
+            
+            <div class="flex gap-3 mt-6">
+                <button id="modal-cancel-btn" class="btn w-1/2 bg-gray-200 text-gray-700 font-medium">取消</button>
+                <button id="modal-save-btn" class="btn w-1/2 bg-blue-600 text-white font-medium">儲存</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // -----------------------------------------------------------
+        // v29.1 詞彙庫 (全面加入 Emoji)
+        // -----------------------------------------------------------
+        
+        // v29.1: 一鍵求助 (Quick Actions) - 加入 Emoji
+        const quickCategories = {
+            "常用語句": {"color": "bg-red-600 text-white", "words": [
+                {"id": "q_pain", "emoji": "😫", "labels": {"zh-TW": "我痛", "en-US": "I'm in pain", "id-ID": "Saya sakit", "vi-VN": "Tôi đau", "tl-PH": "Masakit ako"}},
+                {"id": "q_uncomfortable", "emoji": "🤢", "labels": {"zh-TW": "我不舒服", "en-US": "I'm uncomfortable", "id-ID": "Saya tidak nyaman", "vi-VN": "Tôi khó chịu", "tl-PH": "Hindi ako komportable"}},
+                {"id": "q_help", "emoji": "🆘", "labels": {"zh-TW": "幫我", "en-US": "Help me", "id-ID": "Tolong saya", "vi-VN": "Giúp tôi", "tl-PH": "Tulungan mo ako"}},
+                {"id": "q_poop", "emoji": "💩", "labels": {"zh-TW": "我想大便", "en-US": "I need to poop", "id-ID": "Saya mau buang air besar", "vi-VN": "Tôi muốn đi đại tiện", "tl-PH": "Gusto kong dumumi"}},
+                {"id": "q_pee", "emoji": "🚽", "labels": {"zh-TW": "我想小便", "en-US": "I need to pee", "id-ID": "Saya mau buang air kecil", "vi-VN": "Tôi muốn đi tiểu", "tl-PH": "Gusto kong umihi"}},
+                {"id": "q_pooped", "emoji": "💩", "labels": {"zh-TW": "我大便了", "en-US": "I pooped", "id-ID": "Saya sudah buang air besar", "vi-VN": "Tôi đã đại tiện rồi", "tl-PH": "Nakadumi na ako"}},
+                {"id": "q_peed", "emoji": "🚽", "labels": {"zh-TW": "我小便了", "en-US": "I peed", "id-ID": "Saya sudah buang air kecil", "vi-VN": "Tôi đã tiểu tiện rồi", "tl-PH": "Nakaihi na ako"}},
+                {"id": "q_turn_over", "emoji": "🔄", "labels": {"zh-TW": "幫我翻身", "en-US": "Turn me over", "id-ID": "Bantu saya balik badan", "vi-VN": "Giúp tôi lật người", "tl-PH": "Itagilid mo ako"}},
+                {"id": "q_thirsty", "emoji": "💧", "labels": {"zh-TW": "我渴了", "en-US": "I'm thirsty", "id-ID": "Saya haus", "vi-VN": "Tôi khát", "tl-PH": "Nauuhaw ako"}},
+                {"id": "q_hungry", "emoji": "😋", "labels": {"zh-TW": "我餓了", "en-US": "I'm hungry", "id-ID": "Saya lapar", "vi-VN": "Tôi đói", "tl-PH": "Gutom ako"}},
+                {"id": "q_full", "emoji": "😌", "labels": {"zh-TW": "我飽了", "en-US": "I'm full", "id-ID": "Saya kenyang", "vi-VN": "Tôi no rồi", "tl-PH": "Busog na ako"}},
+                {"id": "q_sleep", "emoji": "😴", "labels": {"zh-TW": "我想睡覺", "en-US": "I want to sleep", "id-ID": "Saya mau tidur", "vi-VN": "Tôi muốn ngủ", "tl-PH": "Gusto kong matulog"}},
+                {"id": "q_bathe", "emoji": "🛀", "labels": {"zh-TW": "我想洗澡", "en-US": "I want to bathe", "id-ID": "Saya mau mandi", "vi-VN": "Tôi muốn tắm", "tl-PH": "Gusto kong maligo"}},
+                {"id": "q_breathless", "emoji": "😮‍💨", "labels": {"zh-TW": "呼吸困難", "en-US": "Difficulty breathing", "id-ID": "Susah bernapas", "vi-VN": "Khó thở", "tl-PH": "Nahihirapang huminga"}}
+            ]},
+            "醫療/症狀": {"color": "bg-red-600 text-white", "words": [
+                {"id": "q_understand", "emoji": "👍", "labels": {"zh-TW": "我明白", "en-US": "I understand", "id-ID": "Saya mengerti", "vi-VN": "Tôi hiểu", "tl-PH": "Naiintihan ko"}},
+                {"id": "q_dont_understand", "emoji": "❓", "labels": {"zh-TW": "我聽不懂", "en-US": "I don't understand", "id-ID": "Saya tidak mengerti", "vi-VN": "Tôi không hiểu", "tl-PH": "Hindi ko naiintindihan"}},
+                {"id": "q_pain_high", "emoji": "🔟", "labels": {"zh-TW": "很痛 (8-10)", "en-US": "Very painful (8-10)", "id-ID": "Sangat sakit (8-10)", "vi-VN": "Rất đau (8-10)", "tl-PH": "Sobrang sakit (8-10)"}},
+                {"id": "q_pain_mid", "emoji": "🖐️", "labels": {"zh-TW": "中等痛 (4-7)", "en-US": "Medium pain (4-7)", "id-ID": "Cukup sakit (4-7)", "vi-VN": "Đau vừa (4-7)", "tl-PH": "Katamtamang sakit (4-7)"}},
+                {"id": "q_pain_low", "emoji": "🤏", "labels": {"zh-TW": "一點痛 (1-3)", "en-US": "A little pain (1-3)", "id-ID": "Sedikit sakit (1-3)", "vi-VN": "Đau nhẹ (1-3)", "tl-PH": "Medyo masakit (1-3)"}},
+                {"id": "q_pain_no", "emoji": "👌", "labels": {"zh-TW": "不痛 (0)", "en-US": "No pain (0)", "id-ID": "Tidak sakit (0)", "vi-VN": "Không đau (0)", "tl-PH": "Walang sakit (0)"}},
+                {"id": "q_nausea", "emoji": "🤢", "labels": {"zh-TW": "想吐 (噁心)", "en-US": "Nauseous", "id-ID": "Mual", "vi-VN": "Buồn nôn", "tl-PH": "Nasusuka"}},
+                {"id": "q_dizzy", "emoji": "😵‍💫", "labels": {"zh-TW": "頭暈", "en-US": "Dizzy", "id-ID": "Pusing", "vi-VN": "Chóng mặt", "tl-PH": "Nahihilo"}}
+            ]},
+            "應答/情感": {"color": "bg-blue-600 text-white", "words": [
+                {"id": "q_yes", "emoji": "⭕", "labels": {"zh-TW": "是的", "en-US": "Yes", "id-ID": "Ya", "vi-VN": "Vâng", "tl-PH": "Oo"}},
+                {"id": "q_no", "emoji": "❌", "labels": {"zh-TW": "不是", "en-US": "No", "id-ID": "Bukan/Tidak", "vi-VN": "Không", "tl-PH": "Hindi"}},
+                {"id": "q_ok", "emoji": "👍", "labels": {"zh-TW": "OK", "en-US": "OK", "id-ID": "OK", "vi-VN": "OK", "tl-PH": "OK"}},
+                {"id": "q_hello", "emoji": "👋", "labels": {"zh-TW": "你好", "en-US": "Hello", "id-ID": "Halo", "vi-VN": "Xin chào", "tl-PH": "Hello / Kumusta"}},
+                {"id": "q_thanks", "emoji": "🙏", "labels": {"zh-TW": "謝謝", "en-US": "Thank you", "id-ID": "Terima kasih", "vi-VN": "Cảm ơn", "tl-PH": "Salamat"}},
+                {"id": "q_bye", "emoji": "👋", "labels": {"zh-TW": "再見", "en-US": "Goodbye", "id-ID": "Selamat tinggal", "vi-VN": "Tạm biệt", "tl-PH": "Paalam"}},
+                {"id": "q_sorry", "emoji": "🙇", "labels": {"zh-TW": "對不起", "en-US": "Sorry", "id-ID": "Maaf", "vi-VN": "Xin lỗi", "tl-PH": "Pasensya na"}},
+                {"id": "q_love_you", "emoji": "❤️", "labels": {"zh-TW": "我愛你", "en-US": "I love you", "id-ID": "Aku cinta kamu", "vi-VN": "Em yêu anh / Anh yêu em", "tl-PH": "Mahal kita"}},
+                {"id": "q_miss_you", "emoji": "💭", "labels": {"zh-TW": "我想你", "en-US": "I miss you", "id-ID": "Aku rindu kamu", "vi-VN": "Em nhớ anh / Anh nhớ em", "tl-PH": "Miss na kita"}},
+                {"id": "q_happy", "emoji": "😄", "labels": {"zh-TW": "我很開心", "en-US": "I am happy", "id-ID": "Saya senang", "vi-VN": "Tôi vui", "tl-PH": "Masaya ako"}},
+                {"id": "q_bored", "emoji": "😑", "labels": {"zh-TW": "我很無聊", "en-US": "I am bored", "id-ID": "Saya bosan", "vi-VN": "Tôi chán", "tl-PH": "Nababagot ako"}},
+                {"id": "q_lonely", "emoji": "😟", "labels": {"zh-TW": "我很寂寞", "en-US": "I am lonely", "id-ID": "Saya kesepian", "vi-VN": "Tôi cô đơn", "tl-PH": "Nalulungkot ako"}}
+            ]},
+            "環境": {"color": "bg-sky-600 text-white", "words": [
+                {"id": "q_cold", "emoji": "🥶", "labels": {"zh-TW": "我冷", "en-US": "I'm cold", "id-ID": "Saya dingin", "vi-VN": "Tôi lạnh", "tl-PH": "Giniginaw ako"}},
+                {"id": "q_hot", "emoji": "🥵", "labels": {"zh-TW": "我熱", "en-US": "I'm hot", "id-ID": "Saya panas", "vi-VN": "Tôi nóng", "tl-PH": "Naiinitan ako"}},
+                {"id": "q_light_on", "emoji": "💡", "labels": {"zh-TW": "開燈", "en-US": "Turn on the light", "id-ID": "Nyalakan lampu", "vi-VN": "Bật đèn", "tl-PH": "Buksan ang ilaw"}},
+                {"id": "q_light_off", "emoji": "🌑", "labels": {"zh-TW": "關燈", "en-US": "Turn off the light", "id-ID": "Matikan lampu", "vi-VN": "Tắt đèn", "tl-PH": "Patayin ang ilaw"}},
+                {"id": "q_too_loud", "emoji": "🙉", "labels": {"zh-TW": "太吵了", "en-US": "Too loud", "id-ID": "Terlalu berisik", "vi-VN": "Ồn quá", "tl-PH": "Masyadong maingay"}},
+                {"id": "q_quiet", "emoji": "🤫", "labels": {"zh-TW": "安靜一點", "en-US": "Be quiet", "id-ID": "Harap tenang", "vi-VN": "Im lặng chút", "tl-PH": "Tumahimik po"}},
+                {"id": "q_bed_up", "emoji": "🔼", "labels": {"zh-TW": "床搖高", "en-US": "Raise the bed", "id-ID": "Naikkan tempat tidur", "vi-VN": "Nâng giường lên", "tl-PH": "Itaas ang kama"}},
+                {"id": "q_bed_down", "emoji": "🔽", "labels": {"zh-TW": "床搖低", "en-US": "Lower the bed", "id-ID": "Turunkan tempat tidur", "vi-VN": "Hạ giường xuống", "tl-PH": "Ibaba ang kama"}}
+            ]}
+        };
+
+        // v29.1: 組合句子 (Builder) - 加入 Emoji
+        const defaultBuilderCategories = {
+            "主詞": {"color": "bg-orange-600 text-white", "words": [
+                { "id": "me", "emoji": "🙋", "labels": {"zh-TW": "我", "en-US": "I", "id-ID": "Saya", "vi-VN": "Tôi", "tl-PH": "Ako"} },
+                { "id": "you", "emoji": "🫵", "labels": {"zh-TW": "你", "en-US": "You", "id-ID": "Anda", "vi-VN": "Bạn", "tl-PH": "Ikaw"} },
+                { "id": "he_she", "emoji": "👤", "labels": {"zh-TW": "他/她", "en-US": "He/She", "id-ID": "Dia", "vi-VN": "Anh ấy/Cô ấy", "tl-PH": "Siya"} },
+                { "id": "family", "emoji": "👨‍👩‍👧‍👦", "labels": {"zh-TW": "家人", "en-US": "Family", "id-ID": "Keluarga", "vi-VN": "Gia đình", "tl-PH": "Pamilya"} },
+                { "id": "friend", "emoji": "😊", "labels": {"zh-TW": "朋友", "en-US": "Friend", "id-ID": "Teman", "vi-VN": "Bạn bè", "tl-PH": "Kaibigan"} },
+                { "id": "doctor", "emoji": "🩺", "labels": {"zh-TW": "醫生", "en-US": "Doctor", "id-ID": "Dokter", "vi-VN": "Bác sĩ", "tl-PH": "Doktor"} },
+                { "id": "nurse", "emoji": "👩‍⚕️", "labels": {"zh-TW": "護理師", "en-US": "Nurse", "id-ID": "Perawat", "vi-VN": "Y tá", "tl-PH": "Nars"} },
+                { "id": "caregiver", "emoji": "🤝", "labels": {"zh-TW": "照顧者", "en-US": "Caregiver", "id-ID": "Pengasuh", "vi-VN": "Người chăm sóc", "tl-PH": "Tagapag-alaga"} }
+            ]},
+            "動詞/需求": {"color": "bg-green-600 text-white", "words": [
+                { "id": "want", "emoji": "🤔", "labels": {"zh-TW": "想", "en-US": "Want", "id-ID": "Ingin", "vi-VN": "Muốn", "tl-PH": "Gusto"} },
+                { "id": "need", "emoji": "🤚", "labels": {"zh-TW": "要", "en-US": "Need/Want", "id-ID": "Mau", "vi-VN": "Cần", "tl-PH": "Kailangan"} },
+                { "id": "not", "emoji": "🙅", "labels": {"zh-TW": "不", "en-US": "Not", "id-ID": "Tidak", "vi-VN": "Không", "tl-PH": "Hindi"} },
+                { "id": "is", "emoji": "⭕", "labels": {"zh-TW": "是", "en-US": "Is/Yes", "id-ID": "Adalah/Ya", "vi-VN": "Là/Vâng", "tl-PH": "Ay/Oo"} },
+                { "id": "go", "emoji": "➡️", "labels": {"zh-TW": "去", "en-US": "Go", "id-ID": "Pergi", "vi-VN": "Đi", "tl-PH": "Punta"} },
+                { "id": "eat", "emoji": "😋", "labels": {"zh-TW": "吃", "en-US": "Eat", "id-ID": "Makan", "vi-VN": "Ăn", "tl-PH": "Kain"} },
+                { "id": "drink", "emoji": "💧", "labels": {"zh-TW": "喝", "en-US": "Drink", "id-ID": "Minum", "vi-VN": "Uống", "tl-PH": "Inom"} },
+                { "id": "wear", "emoji": "👕", "labels": {"zh-TW": "穿", "en-US": "Wear", "id-ID": "Pakai", "vi-VN": "Mặc", "tl-PH": "Suot"} },
+                { "id": "on", "emoji": "⬆️", "labels": {"zh-TW": "上", "en-US": "Go to/On", "id-ID": "Ke/Di atas", "vi-VN": "Đi/Trên", "tl-PH": "Sa"} },
+                { "id": "watch", "emoji": "👀", "labels": {"zh-TW": "看", "en-US": "Watch/Look", "id-ID": "Lihat/Menonton", "vi-VN": "Xem/Nhìn", "tl-PH": "Tingin/Nood"} },
+                { "id": "listen", "emoji": "👂", "labels": {"zh-TW": "聽", "en-US": "Listen", "id-ID": "Dengar", "vi-VN": "Nghe", "tl-PH": "Pakinig"} },
+                { "id": "find", "emoji": "🔍", "labels": {"zh-TW": "找", "en-US": "Find/Look for", "id-ID": "Cari", "vi-VN": "Tìm", "tl-PH": "Hanap"} },
+                { "id": "feel", "emoji": "✋", "labels": {"zh-TW": "覺得", "en-US": "Feel", "id-ID": "Rasa", "vi-VN": "Cảm thấy", "tl-PH": "Pakiramdam"} },
+                { "id": "open", "emoji": "🔼", "labels": {"zh-TW": "開", "en-US": "Open/Turn on", "id-ID": "Buka/Nyalakan", "vi-VN": "Mở/Bật", "tl-PH": "Buksan"} },
+                { "id": "close", "emoji": "🔽", "labels": {"zh-TW": "關", "en-US": "Close/Turn off", "id-ID": "Tutup/Matikan", "vi-VN": "Đóng/Tắt", "tl-PH": "Isara/Patayin"} },
+                { "id": "come", "emoji": " Lái", "labels": {"zh-TW": "來", "en-US": "Come", "id-ID": "Datang", "vi-VN": "Đến", "tl-PH": "Halika"} }
+            ]},
+            "感受/狀態": {"color": "bg-teal-600 text-white", "words": [
+                { "id": "pain", "emoji": "😫", "labels": {"zh-TW": "痛", "en-US": "Painful", "id-ID": "Sakit", "vi-VN": "Đau", "tl-PH": "Masakit"} },
+                { "id": "cold", "emoji": "🥶", "labels": {"zh-TW": "冷", "en-US": "Cold", "id-ID": "Dingin", "vi-VN": "Lạnh", "tl-PH": "Malamig"} },
+                { "id": "hot", "emoji": "🥵", "labels": {"zh-TW": "熱", "en-US": "Hot", "id-ID": "Panas", "vi-VN": "Nóng", "tl-PH": "Mainit"} },
+                { "id": "comfortable", "emoji": "😌", "labels": {"zh-TW": "舒服", "en-US": "Comfortable", "id-ID": "Nyaman", "vi-VN": "Thoải mái", "tl-PH": "Komportable"} },
+                { "id": "uncomfortable", "emoji": "🤢", "labels": {"zh-TW": "不舒服", "en-US": "Uncomfortable", "id-ID": "Tidak nyaman", "vi-VN": "Khó chịu", "tl-PH": "Hindi komportable"} },
+                { "id": "happy", "emoji": "😄", "labels": {"zh-TW": "開心", "en-US": "Happy", "id-ID": "Senang", "vi-VN": "Vui vẻ", "tl-PH": "Masaya"} },
+                { "id": "sad", "emoji": "😢", "labels": {"zh-TW": "難過", "en-US": "Sad", "id-ID": "Sedih", "vi-VN": "Buồn", "tl-PH": "Malungkot"} },
+                { "id": "itchy", "emoji": "✋", "labels": {"zh-TW": "癢", "en-US": "Itchy", "id-ID": "Gatal", "vi-VN": "Ngứa", "tl-PH": "Makati"} },
+                { "id": "numb", "emoji": " numbness", "labels": {"zh-TW": "麻", "en-US": "Numb", "id-ID": "Mati rasa", "vi-VN": "Tê", "tl-PH": "Manhid"} },
+                { "id": "tired", "emoji": "🥱", "labels": {"zh-TW": "累", "en-US": "Tired", "id-ID": "Lelah", "vi-VN": "Mệt", "tl-PH": "Pagod"} }
+            ]},
+            "社交": {"color": "bg-blue-600 text-white", "words": [
+                { "id": "thanks", "emoji": "🙏", "labels": {"zh-TW": "謝謝", "en-US": "Thank you", "id-ID": "Terima kasih", "vi-VN": "Cảm ơn", "tl-PH": "Salamat"} },
+                { "id": "hello", "emoji": "👋", "labels": {"zh-TW": "你好", "en-US": "Hello", "id-ID": "Halo", "vi-VN": "Xin chào", "tl-PH": "Hello / Kumusta"} },
+                { "id": "good_morning", "emoji": "☀️", "labels": {"zh-TW": "早安", "en-US": "Good morning", "id-ID": "Selamat pagi", "vi-VN": "Chào buổi sáng", "tl-PH": "Magandang umaga"} },
+                { "id": "good_night", "emoji": "🌙", "labels": {"zh-TW": "晚安", "en-US": "Good night", "id-ID": "Selamat malam", "vi-VN": "Chúc ngủ ngon", "tl-PH": "Magandang gabi"} }
+            ]},
+            "食物/飲品": {"color": "bg-amber-600 text-white", "words": [
+                { "id": "rice", "emoji": "🍚", "labels": {"zh-TW": "飯", "en-US": "Rice", "id-ID": "Nasi", "vi-VN": "Cơm", "tl-PH": "Kanin"} },
+                { "id": "noodle", "emoji": "🍜", "labels": {"zh-TW": "麵", "en-US": "Noodles", "id-ID": "Mie", "vi-VN": "Mì", "tl-PH": "Pansit / Noodles"} },
+                { "id": "congee", "emoji": "🥣", "labels": {"zh-TW": "粥", "en-US": "Congee/Porridge", "id-ID": "Bubur", "vi-VN": "Cháo", "tl-PH": "Lugaw"} },
+                { "id": "fruit", "emoji": "🍎", "labels": {"zh-TW": "水果", "en-US": "Fruit", "id-ID": "Buah", "vi-VN": "Trái cây", "tl-PH": "Prutas"} },
+                { "id": "snack", "emoji": "🍪", "labels": {"zh-TW": "點心", "en-US": "Snack", "id-ID": "Camilan", "vi-VN": "Đồ ăn nhẹ", "tl-PH": "Meryenda"} },
+                { "id": "water", "emoji": "💧", "labels": {"zh-TW": "水", "en-US": "Water", "id-ID": "Air", "vi-VN": "Nước", "tl-PH": "Tubig"} },
+                { "id": "tea", "emoji": "🍵", "labels": {"zh-TW": "茶", "en-US": "Tea", "id-ID": "Teh", "vi-VN": "Trà", "tl-PH": "Tsaa"} },
+                { "id": "juice", "emoji": "🧃", "labels": {"zh-TW": "果汁", "en-US": "Juice", "id-ID": "Jus", "vi-VN": "Nước ép", "tl-PH": "Juice"} },
+                { "id": "milk", "emoji": "🥛", "labels": {"zh-TW": "牛奶", "en-US": "Milk", "id-ID": "Susu", "vi-VN": "Sữa", "tl-PH": "Gatas"} }
+            ]},
+            "物品/環境": {"color": "bg-purple-600 text-white", "words": [
+                { "id": "phone", "emoji": "📱", "labels": {"zh-TW": "手機", "en-US": "Phone", "id-ID": "Telepon", "vi-VN": "Điện thoại", "tl-PH": "Telepono / Cellphone"} },
+                { "id": "remote", "emoji": "📺", "labels": {"zh-TW": "遙控器", "en-US": "Remote", "id-ID": "Remot", "vi-VN": "Điều khiển", "tl-PH": "Remote"} },
+                { "id": "glasses", "emoji": "👓", "labels": {"zh-TW": "眼鏡", "en-US": "Glasses", "id-ID": "Kacamata", "vi-VN": "Kính", "tl-PH": "Salamin"} },
+                { "id": "medicine", "emoji": "💊", "labels": {"zh-TW": "藥", "en-US": "Medicine", "id-ID": "Obat", "vi-VN": "Thuốc", "tl-PH": "Gamot"} },
+                { "id": "wallet", "emoji": "👛", "labels": {"zh-TW": "錢包", "en-US": "Wallet", "id-ID": "Dompet", "vi-VN": "Ví", "tl-PH": "Pitaka"} },
+                { "id": "clothes", "emoji": "👕", "labels": {"zh-TW": "衣服", "en-US": "Clothes", "id-ID": "Pakaian", "vi-VN": "Quần áo", "tl-PH": "Damit"} },
+                { "id": "pants", "emoji": "👖", "labels": {"zh-TW": "褲子", "en-US": "Pants", "id-ID": "Celana", "vi-VN": "Quần", "tl-PH": "Pantalon"} },
+                { "id": "diaper", "emoji": "👶", "labels": {"zh-TW": "尿布", "en-US": "Diaper", "id-ID": "Popok", "vi-VN": "Tã", "tl-PH": "Diaper"} },
+                { "id": "hearing_aid", "emoji": "🦻", "labels": {"zh-TW": "助聽器", "en-US": "Hearing aid", "id-ID": "Alat bantu dengar", "vi-VN": "Máy trợ thính", "tl-PH": "Hearing aid"} },
+                { "id": "denture", "emoji": "🦷", "labels": {"zh-TW": "假牙", "en-US": "Denture", "id-ID": "Gigi palsu", "vi-VN": "Răng giả", "tl-PH": "Pustiso"} },
+                { "id": "light", "emoji": "💡", "labels": {"zh-TW": "燈", "en-US": "Light", "id-ID": "Lampu", "vi-VN": "Đèn", "tl-PH": "Ilaw"} },
+                { "id": "tv", "emoji": "📺", "labels": {"zh-TW": "電視", "en-US": "TV", "id-ID": "TV", "vi-VN": "TV", "tl-PH": "TV"} },
+                { "id": "ac", "emoji": "🥶", "labels": {"zh-TW": "冷氣", "en-US": "Air conditioner", "id-ID": "AC", "vi-VN": "Máy lạnh", "tl-PH": "Aircon"} },
+                { "id": "door", "emoji": "🚪", "labels": {"zh-TW": "門", "en-US": "Door", "id-ID": "Pintu", "vi-VN": "Cửa", "tl-PH": "Pinto"} },
+                { "id": "window", "emoji": "🪟", "labels": {"zh-TW": "窗戶", "en-US": "Window", "id-ID": "Jendela", "vi-VN": "Cửa sổ", "tl-PH": "Bintana"} }
+            ]},
+            "地方": {"color": "bg-indigo-600 text-white", "words": [
+                { "id": "room", "emoji": "🛌", "labels": {"zh-TW": "房間", "en-US": "Room", "id-ID": "Kamar", "vi-VN": "Phòng", "tl-PH": "Kuwarto"} },
+                { "id": "living_room", "emoji": "🛋️", "labels": {"zh-TW": "客廳", "en-US": "Living room", "id-ID": "Ruang tamu", "vi-VN": "Phòng khách", "tl-PH": "Sala"} },
+                { "id": "toilet", "emoji": "🚽", "labels": {"zh-TW": "廁所", "en-US": "Toilet/Restroom", "id-ID": "Toilet", "vi-VN": "Nhà vệ sinh", "tl-PH": "Banyo / C.R."} },
+                { "id": "hospital", "emoji": "🏥", "labels": {"zh-TW": "醫院", "en-US": "Hospital", "id-ID": "Rumah sakit", "vi-VN": "Bệnh viện", "tl-PH": "Ospital"} },
+                { "id": "outside", "emoji": "🌳", "labels": {"zh-TW": "外面", "en-US": "Outside", "id-ID": "Luar", "vi-VN": "Bên ngoài", "tl-PH": "Labas"} }
+            ]}
+        };
+        
+        // v28: builder 類別順序
+        const categoryOrder = ["主詞", "動詞/需求", "感受/狀態", "社交", "食物/飲品", "物品/環境", "地方"];
+
+        
+        // --- v28: 變數 ---
+        let builderCategories = {};
+        let quickCategoriesData = {}; // v28: 存放合併後的 quick data
+        const BUILDER_DATA_KEY = 'aacBuilderData_v28'; // v28: 更新 KEY
+        const SETTINGS_KEY = 'aacSettings_v28'; // v28: 更新 KEY
+        
+        let currentSentence = []; // v28: 儲存 {id, emoji, labels} 物件
+        let synth = window.speechSynthesis;
+        let voices = [];
+        let currentCategoryToAddTo = null; 
+        let isConfirmingClear = false;
+        let clearConfirmTimer = null;
+        
+        let currentSize = 'medium';
+        let currentLang = 'zh-TW'; // v28: 朗讀語言
+        const v28_sizeClasses = {
+            'small': 'h-28 text-xl',     // 7rem / 1.25rem
+            'medium': 'h-36 text-2xl',    // 9rem / 1.5rem
+            'large': 'h-44 text-3xl'     // 11rem / 1.875rem
+        };
+
+        // DOM 元素
+        const mainAppContent = document.getElementById('app-content');
+        const quickView = document.getElementById('quick-actions-view');
+        const builderView = document.getElementById('builder-view');
+        const settingsView = document.getElementById('settings-view');
+        
+        const quickCategoryTabs = document.getElementById('quick-category-tabs');
+        const quickWordGrid = document.getElementById('quick-word-grid');
+        const builderCategoryTabs = document.getElementById('builder-category-tabs');
+        const builderWordGrid = document.getElementById('builder-word-grid');
+        
+        const sentenceDisplay = document.getElementById('sentence-display');
+        
+        const mainNav = document.getElementById('main-nav');
+        const speakBtn = document.getElementById('speak-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        
+        const navQuickBtn = document.getElementById('nav-quick-btn');
+        const navBuilderBtn = document.getElementById('nav-builder-btn');
+        const navSettingsBtn = document.getElementById('nav-settings-btn');
+
+        const addWordModal = document.getElementById('add-word-modal');
+        const modalTitle = document.getElementById('modal-title');
+        // v29: 更新 Modal DOM
+        const modalInputZh = document.getElementById('modal-input-zh');
+        const modalInputLang = document.getElementById('modal-input-lang');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalSaveBtn = document.getElementById('modal-save-btn');
+        
+        const sizeBtnSmall = document.getElementById('size-btn-small');
+        const sizeBtnMedium = document.getElementById('size-btn-medium');
+        const sizeBtnLarge = document.getElementById('size-btn-large');
+        const languageSelect = document.getElementById('language-select'); // v28: 新增
+
+
+        // --- 語音核心功能 ---
+        function loadVoices() {
+            // v28: 載入所有 voices, 稍後再過濾
+            voices = synth.getVoices();
+        }
+        
+        loadVoices();
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = loadVoices;
+        }
+
+        // v28: speakText 函數更新, 增加 lang 參數
+        function speakText(textToSpeak, elementToFlash = null, lang = 'zh-TW') {
+            if (!textToSpeak) return;
+            resetClearConfirmation();
+            
+            document.querySelectorAll('.flash-sentence, .flash-quick-btn').forEach(e => {
+                e.classList.remove('flash-sentence', 'flash-quick-btn');
+            });
+            
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            // v28: 根據 lang 參數動態選擇語音
+            let filteredVoices = [];
+            let langPrefix = lang.split('-')[0]; // e.g., 'zh', 'en', 'id', 'vi', 'tl'
+            
+            if (lang === 'zh-TW') {
+                filteredVoices = voices.filter(v => v.lang.includes('zh-TW') || v.lang.includes('zh'));
+            } else {
+                filteredVoices = voices.filter(v => v.lang.startsWith(lang) || v.lang.startsWith(langPrefix));
+            }
+            
+            let bestVoice = filteredVoices.find(v => v.name.includes('Google') && v.lang.startsWith(lang));
+            if (!bestVoice) bestVoice = filteredVoices.find(v => v.lang.startsWith(lang));
+            if (!bestVoice && lang === 'zh-TW') {
+                bestVoice = filteredVoices.find(v => v.lang.includes('zh-TW'));
+            }
+            if (!bestVoice) {
+                bestVoice = filteredVoices[0];
+            }
+            
+            if (bestVoice) {
+                utterance.voice = bestVoice;
+            }
+            utterance.lang = lang; // 設定 utterance 的語言
+            utterance.rate = (lang === 'zh-TW') ? 0.9 : 0.8; // 中文稍快, 其他語言稍慢
+            
+            utterance.onstart = () => {
+                if (elementToFlash) {
+                    elementToFlash.classList.add(elementToFlash.id === 'sentence-display' ? 'flash-sentence' : 'flash-quick-btn');
+                }
+            };
+            utterance.onend = () => {
+                if (elementToFlash) {
+                    elementToFlash.classList.remove('flash-sentence', 'flash-quick-btn');
+                }
+            };
+
+            synth.cancel();
+            synth.speak(utterance);
+        }
+
+        // --- 模式切換 ---
+        function showView(viewId) {
+            quickView.classList.add('hidden');
+            builderView.classList.add('hidden');
+            settingsView.classList.add('hidden');
+            
+            navQuickBtn.classList.remove('active');
+            navBuilderBtn.classList.remove('active');
+            navSettingsBtn.classList.remove('active');
+            
+            mainNav.classList.remove('hidden');
+            
+            if (viewId === 'quick-actions-view') {
+                quickView.classList.remove('hidden');
+                navQuickBtn.classList.add('active');
+                rerenderQuickGrid();
+            } else if (viewId === 'builder-view') {
+                builderView.classList.remove('hidden');
+                navBuilderBtn.classList.add('active');
+                rerenderBuilderGrid();
+            } else if (viewId === 'settings-view') {
+                settingsView.classList.remove('hidden');
+                navSettingsBtn.classList.add('active');
+            }
+            
+            mainAppContent.scrollTop = 0;
+            resetClearConfirmation();
+        }
+        
+        function rerenderQuickGrid() {
+            const activeTab = quickCategoryTabs.querySelector('.tab-btn.active');
+            showQuickWords(activeTab?.dataset.category || Object.keys(quickCategoriesData)[0]);
+        }
+        
+        function rerenderBuilderGrid() {
+            const activeTab = builderCategoryTabs.querySelector('.tab-btn.active');
+            showBuilderWords(activeTab?.dataset.category || Object.keys(builderCategories)[0]);
+        }
+
+        // --- 模式一：一鍵求助 (v29.1: Emoji 渲染) ---
+        function initQuickActions() {
+            // v28: 使用 quickCategoriesData
+            const categories = Object.keys(quickCategoriesData);
+            quickCategoryTabs.innerHTML = ''; 
+            
+            categories.forEach(categoryName => {
+                const btn = document.createElement('button');
+                btn.className = 'btn tab-btn';
+                btn.innerText = categoryName;
+                btn.dataset.category = categoryName;
+                btn.onclick = () => showQuickWords(categoryName);
+                quickCategoryTabs.appendChild(btn);
+            });
+        }
+
+        function showQuickWords(categoryName) {
+            quickWordGrid.innerHTML = '';
+            const category = quickCategoriesData[categoryName];
+            
+            // v28: 遍歷 wordObj 陣列
+            category.words.forEach(wordObj => {
+                const btn = document.createElement('button');
+                const sizeClass = v28_sizeClasses[currentSize];
+                
+                // v29.1: 按鈕改為 flex-col (上圖下文)
+                btn.className = `btn quick-word-btn ${category.color} ${sizeClass} flex-col`;
+                
+                // v29.1: 插入 Emoji 和文字
+                const emoji = wordObj.emoji || '💬';
+                btn.innerHTML = `
+                    <span class="text-5xl">${emoji}</span>
+                    <span class="mt-2">${wordObj.labels['zh-TW']}</span>
+                `; 
+                
+                // v28: 根據設定的 currentLang 朗讀
+                btn.onclick = () => {
+                    const langToSpeak = currentLang;
+                    const textToSpeak = wordObj.labels[langToSpeak] || wordObj.labels['zh-TW']; // 回退中文
+                    speakText(textToSpeak, btn, langToSpeak);
+                };
+                quickWordGrid.appendChild(btn);
+            });
+
+            quickCategoryTabs.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === categoryName);
+            });
+        }
+
+        // --- 模式二：組合句子 (v29.1: 多項優化) ---
+        function handleClearClick() {
+            if (isConfirmingClear) {
+                currentSentence = [];
+                updateSentence();
+                resetClearConfirmation();
+            } else {
+                isConfirmingClear = true;
+                clearBtn.innerText = "⚠️ 確認清除？";
+                clearBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                clearBtn.classList.add('bg-red-600', 'text-white');
+                
+                clearTimeout(clearConfirmTimer);
+                clearConfirmTimer = setTimeout(resetClearConfirmation, 3000);
+            }
+        }
+        
+        function resetClearConfirmation() {
+            if (!isConfirmingClear && !clearBtn) return;
+            isConfirmingClear = false;
+            clearTimeout(clearConfirmTimer);
+            if (clearBtn) {
+                clearBtn.innerText = "❌ 清除";
+                clearBtn.classList.add('bg-gray-200', 'text-gray-700');
+                clearBtn.classList.remove('bg-red-600', 'text-white');
+            }
+        }
+
+        function initBuilder() {
+            // v28: 使用 categoryOrder
+            const categories = categoryOrder;
+            
+            builderCategoryTabs.innerHTML = ''; 
+            
+            categories.forEach(categoryName => {
+                const btn = document.createElement('button');
+                btn.className = 'btn tab-btn';
+                btn.innerText = categoryName;
+                btn.dataset.category = categoryName;
+                btn.onclick = () => showBuilderWords(categoryName);
+                builderCategoryTabs.appendChild(btn);
+            });
+
+            // v28: 綁定按鈕 (朗讀邏輯不變)
+            speakBtn.onclick = () => {
+                resetClearConfirmation();
+                const langToSpeak = currentLang;
+                // v28: 朗讀時, *只* 朗讀目標語言
+                const textToSpeak = currentSentence.map(wordObj => {
+                    return wordObj.labels[langToSpeak] || wordObj.labels['zh-TW']; // 回退到中文
+                }).join(langToSpeak === 'zh-TW' ? '' : ' '); // 中文不加空格, 其他語言加空格
+
+                if (textToSpeak) {
+                    speakText(textToSpeak, sentenceDisplay, langToSpeak);
+                }
+            };
+            deleteBtn.onclick = () => {
+                resetClearConfirmation();
+                currentSentence.pop();
+                updateSentence();
+            };
+            clearBtn.onclick = handleClearClick;
+            
+            modalSaveBtn.onclick = saveNewWord;
+            modalCancelBtn.onclick = hideAddWordModal;
+        }
+
+        function showBuilderWords(categoryName) {
+            builderWordGrid.innerHTML = '';
+            const category = builderCategories[categoryName];
+            if (!category) return;
+            
+            const sizeClass = v28_sizeClasses[currentSize];
+
+            // v28: 遍歷 wordObj 陣列
+            category.words.forEach(wordObj => {
+                const btn = document.createElement('button');
+                // v29.1: 按鈕改為 flex-col (上圖下文)
+                btn.className = `btn builder-word-btn ${category.color} ${sizeClass} flex-col`;
+                
+                // v29.1: 插入 Emoji 和文字
+                const emoji = wordObj.emoji || '💬'; // v29.1: 自訂詞彙可能沒有 emoji, 給個備援
+                btn.innerHTML = `
+                    <span class="text-5xl">${emoji}</span>
+                    <span class="mt-2">${wordObj.labels['zh-TW']}</span>
+                `; 
+                
+                btn.onclick = () => {
+                    resetClearConfirmation();
+                    // v28: 推入整個 wordObj
+                    currentSentence.push(wordObj);
+                    updateSentence();
+                    mainAppContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // v29: 新增詞彙時, 給予句子區塊回饋
+                    sentenceDisplay.classList.add('flash-add-word');
+                    setTimeout(() => sentenceDisplay.classList.remove('flash-add-word'), 400);
+                };
+                builderWordGrid.appendChild(btn);
+            });
+            
+            // v29: "新增" 按鈕移到最後
+            const addBtn = document.createElement('button');
+            addBtn.className = `btn builder-word-btn bg-gray-500 text-white flex-col hover:bg-gray-600 ${sizeClass}`;
+            addBtn.innerHTML = `<span class="text-3xl">＋</span><span class="text-xl font-medium">新增詞彙</span>`;
+            addBtn.onclick = () => showAddWordModal(categoryName);
+            builderWordGrid.appendChild(addBtn);
+
+
+            builderCategoryTabs.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === categoryName);
+            });
+        }
+
+        // v29: 更新句子顯示 (雙語堆疊排版)
+        function updateSentence() {
+            const sentenceHTML = currentSentence.map(wordObj => {
+                const chineseText = wordObj.labels['zh-TW'];
+                
+                if (currentLang === 'zh-TW') {
+                    // 模式一：只有中文
+                    // v29: 雖然只有中文, 仍使用 block 結構以統一排版
+                    return `<div class="word-block">
+                                <span class="word-block-zh">${chineseText}</span>
+                            </div>`;
+                }
+                
+                const foreignText = wordObj.labels[currentLang] || chineseText;
+                
+                if (chineseText === foreignText) {
+                    // 模式二：自訂詞彙 (中外文相同)
+                    return `<div class="word-block">
+                                <span class="word-block-zh">${chineseText}</span>
+                            </div>`;
+                }
+
+                // 模式三：顯示 "中文" + "Foreign"
+                return `<div class="word-block">
+                            <span class="word-block-zh">${chineseText}</span>
+                            <span class="word-block-lang">${foreignText}</span>
+                        </div>`;
+            }).join(' '); // 每個 block 之間用空格分開
+            
+            sentenceDisplay.innerHTML = sentenceHTML;
+            
+            if(currentSentence.length === 0) {
+                sentenceDisplay.innerHTML = ''; // Clear if empty
+            }
+        }
+        
+        // --- 彈窗 (Modal) 相關功能 (v29: 雙輸入框) ---
+        function showAddWordModal(categoryName) {
+            currentCategoryToAddTo = categoryName;
+            modalTitle.innerText = `新增到「${categoryName}」`;
+            modalInputZh.value = '';  // v29: 清空中文
+            modalInputLang.value = ''; // v29: 清空外語
+            addWordModal.classList.remove('hidden');
+            modalInputZh.focus(); // v29: 預設 focus 中文
+        }
+        
+        function hideAddWordModal() {
+            addWordModal.classList.add('hidden');
+        }
+        
+        function saveNewWord() {
+            const newWordZh = modalInputZh.value.trim();
+            const newWordLang = modalInputLang.value.trim();
+            
+            if (!newWordZh || !currentCategoryToAddTo) { // v29: 僅檢查中文 (必填)
+                hideAddWordModal();
+                return;
+            }
+            
+            // v29: 如果外語欄位為空, 則使用中文作為備援
+            const foreignText = newWordLang || newWordZh;
+            
+            // v29.1: 建立多語言物件 (自訂詞彙沒有 emoji)
+            const newWordObj = {
+                "id": `custom_${Date.now()}`,
+                "emoji": "💬", // v29.1: 給自訂詞彙一個預設 emoji
+                "labels": {
+                    "zh-TW": newWordZh,
+                    "en-US": foreignText,
+                    "id-ID": foreignText,
+                    "vi-VN": foreignText,
+                    "tl-PH": foreignText
+                }
+            };
+            
+            builderCategories[currentCategoryToAddTo].words.push(newWordObj);
+            localStorage.setItem(BUILDER_DATA_KEY, JSON.stringify(builderCategories));
+            
+            hideAddWordModal();
+            
+            // v29: 優化: 移到 modal 隱藏後再重繪, 體驗更流暢
+            showBuilderWords(currentCategoryToAddTo);
+        }
+
+        // --- v28: 設定頁面功能 (新增語言) ---
+        function initSettings() {
+            navSettingsBtn.onclick = () => showView('settings-view');
+            
+            sizeBtnSmall.onclick = () => saveSizeSetting('small');
+            sizeBtnMedium.onclick = () => saveSizeSetting('medium');
+            sizeBtnLarge.onclick = () => saveSizeSetting('large');
+            
+            // v28: 綁定語言選單
+            languageSelect.onchange = saveLangSetting;
+            
+            updateSizeSettingUI();
+            updateLangSettingUI();
+        }
+        
+        function saveSizeSetting(size) {
+            currentSize = size;
+            saveSettings();
+            updateSizeSettingUI();
+            
+            // v29.1: 改變大小後, 需要立即重繪當前頁面
+            if (quickView.classList.contains('hidden') === false) {
+                rerenderQuickGrid();
+            } else if (builderView.classList.contains('hidden') === false) {
+                rerenderBuilderGrid();
+            }
+        }
+
+        function saveLangSetting(e) {
+            currentLang = e.target.value;
+            saveSettings();
+            updateLangSettingUI();
+            updateSentence(); // 切換語言後, 立刻更新句子顯示
+            // v28: 重新繪製一鍵求助 (雖然按鈕文字不變, 但點擊邏輯會變)
+            if (quickView.classList.contains('hidden') === false) {
+                rerenderQuickGrid();
+            }
+        }
+        
+        function saveSettings() {
+            const settings = {
+                size: currentSize,
+                lang: currentLang
+            };
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        }
+
+        function updateSizeSettingUI() {
+            sizeBtnSmall.classList.toggle('active', currentSize === 'small');
+            sizeBtnMedium.classList.toggle('active', currentSize === 'medium');
+            sizeBtnLarge.classList.toggle('active', currentSize === 'large');
+        }
+
+        function updateLangSettingUI() {
+            languageSelect.value = currentLang;
+        }
+
+        // --- App 總初始化 (v28: 載入邏輯更新) ---
+        function initApp() {
+            navQuickBtn.onclick = () => showView('quick-actions-view');
+            navBuilderBtn.onclick = () => showView('builder-view');
+
+            // 1. 載入設定 (v28: 包含語言)
+            const savedSettings = localStorage.getItem(SETTINGS_KEY);
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    currentSize = settings.size || 'medium';
+                    currentLang = settings.lang || 'zh-TW';
+                } catch (e) {
+                    console.error("Error parsing settings, resetting:", e);
+                    currentSize = 'medium';
+                    currentLang = 'zh-TW';
+                }
+            } else {
+                currentSize = 'medium';
+                currentLang = 'zh-TW';
+            }
+
+            // 2. 載入 "組合句子" 自定義資料 (v28)
+            const savedBuilderData = localStorage.getItem(BUILDER_DATA_KEY);
+            let loadedData = {};
+            try {
+                if (savedBuilderData) {
+                    loadedData = JSON.parse(savedBuilderData);
+                } else {
+                    loadedData = JSON.parse(JSON.stringify(defaultBuilderCategories));
+                }
+            } catch (e) {
+                console.error("Error parsing builder data, resetting:", e);
+                loadedData = JSON.parse(JSON.stringify(defaultBuilderCategories));
+            }
+            
+            builderCategories = JSON.parse(JSON.stringify(defaultBuilderCategories));
+            
+            // v28: 使用 ID 合併, 確保預設詞彙和自訂詞彙
+            Object.keys(builderCategories).forEach(categoryKey => {
+                if (loadedData[categoryKey] && Array.isArray(loadedData[categoryKey].words)) {
+                    const defaultWords = builderCategories[categoryKey].words; // 預設 (obj array)
+                    const loadedWords = loadedData[categoryKey].words;   // 儲存的 (obj array)
+                    
+                    const wordMap = new Map();
+                    defaultWords.forEach(w => wordMap.set(w.id, w));
+                    // v29.1: 合併時, 確保舊的自訂詞彙也有 emoji 備援
+                    loadedWords.forEach(w => {
+                        if (!w.emoji) {
+                            w.emoji = '💬'; // 幫舊資料加上備援 emoji
+                        }
+                        wordMap.set(w.id, w);
+                    });
+                    
+                    builderCategories[categoryKey].words = Array.from(wordMap.values());
+                } else {
+                    // v28: 如果儲存的資料格式不對, 就使用預設值
+                    console.warn(`Category ${categoryKey} data invalid, using default.`);
+                }
+            });
+            localStorage.setItem(BUILDER_DATA_KEY, JSON.stringify(builderCategories));
+
+            // v28: 載入 "一鍵求助" 資料 (這個模式不允許自訂, 所以直接用預設)
+            quickCategoriesData = JSON.parse(JSON.stringify(quickCategories));
+
+            
+            // 3. 初始化主 App 的三個模式
+            initQuickActions(); 
+            initBuilder(); 
+            initSettings(); 
+            
+            // 4. 預設顯示「一鍵求助」模式
+            showView('quick-actions-view');
+        }
+
+        // 啟動 App
+        // v28: 延遲一點啟動, 確保語音引擎有時間載入
+        setTimeout(initApp, 100);
+
+    </script>
+</body>
+</html>
+
