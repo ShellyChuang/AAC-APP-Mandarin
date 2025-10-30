@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>歡迎使用 - AAC 句子建構器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", Roboto, Arial, sans-serif;
+        }
+        /* 增加一個微妙的漸層背景 */
+        .hero-gradient {
+            background: linear-gradient(170deg, #f3f4f6 0%, #e0e7ff 100%);
+        }
+        /* 讓特色卡片有呼吸感 */
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- 1. Hero 區塊 -->
+    <header class="hero-gradient">
+        <div class="container mx-auto max-w-5xl px-6 py-20 text-center">
+            
+            <!-- Logo/Icon -->
+            <div class="mx-auto w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-12 h-12 text-white">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-6.75 3h9m-9 3H12m6.375 0l-1.09-1.09m1.09 1.09l-1.09-1.09m-7.875-7.875l-1.09-1.09m1.09 1.09l-1.09-1.09m6.75 6.75l-1.09-1.09m1.09 1.09l-1.09-1.09m-6.75 0l-1.09-1.09m1.09 1.09l-1.09-1.09m7.875-7.875l-1.09-1.09m1.09 1.09l-1.09-1.09" />
+                </svg>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mt-6">
+                溝通，從心開始
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mt-6 max-w-2xl mx-auto">
+                一款專為輔助溝通 (AAC) 設計的免費工具，<br>讓您或您關心的人，能輕鬆表達需求與情感。
+            </p>
+            
+            <!-- 主要行動呼籲 (CTA) - 已更新連結 -->
+            <a href="AAC溝通.html" class="inline-block mt-10 px-10 py-4 text-xl font-bold text-white bg-blue-600 rounded-full shadow-lg transition-transform duration-200 hover:bg-blue-700 hover:scale-105 active:scale-100">
+                立即開始使用
+            </a>
+            <p class="text-gray-500 text-sm mt-4">（無需註冊，點擊即可使用）</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- 2. "為什麼" (Why) 區塊 -->
+        <section class="bg-white py-16">
+            <div class="container mx-auto max-w-5xl px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-900">
+                    為什麼會有這個 APP？
+                </h2>
+                <div class="w-20 h-1 bg-blue-600 mx-auto mt-4 rounded-full"></div>
+                
+                <p class="text-lg text-gray-700 mt-8 max-w-3xl mx-auto text-center leading-relaxed">
+                    我們深知，當語言能力受限時（無論是因為中風、手術、漸凍症或其他因素），表達基本的「我痛」、「我想喝水」或「我愛你」都變得極其困難。
+                </p>
+                <p class="text-lg text-gray-700 mt-6 max-w-3xl mx-auto text-center leading-relaxed">
+                    這個工具的誕生，是為了打造一座**簡單、直覺、免費**的橋樑。我們希望透過清晰的大按鈕和多語言支援，幫助使用者重拾表達的力量，也讓照顧者能更即時地理解需求。
+                </p>
+            </div>
+        </section>
+
+        <!-- 3. "如何使用" (How) 區塊 -->
+        <section class="bg-gray-50 py-20">
+            <div class="container mx-auto max-w-6xl px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-900">
+                    如何使用？
+                </h2>
+                <p class="text-lg text-gray-600 mt-4 text-center">
+                    APP 提供兩種模式，您可以隨時在底部切換：
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                    
+                    <!-- 卡片 1: 一鍵求助 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg feature-card">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-red-600">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 20.25l1.5-6.75H3.75Z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 ml-4">
+                                模式一：一鍵求助
+                            </h3>
+                        </div>
+                        <p class="text-gray-700 mt-6 leading-relaxed">
+                            專為**緊急或常用情境**設計。
+                        </p>
+                        <p class="text-gray-700 mt-4 leading-relaxed">
+                            您只需點擊一個大按鈕（例如 <strong>「😫 我痛」</strong> 或 <strong>「💧 我渴了」</strong>），APP 就會立刻用選定的語言（中文、英語、印尼語等）大聲朗讀出來。
+                        </p>
+                    </div>
+
+                    <!-- 卡片 2: 組合句子 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg feature-card">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-blue-600">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 ml-4">
+                                模式二：組合句子
+                            </h3>
+                        </div>
+                        <p class="text-gray-700 mt-6 leading-relaxed">
+                            當您想表達**更完整的句子**時使用。
+                        </p>
+                        <p class="text-gray-700 mt-4 leading-relaxed">
+                            您可以依序點擊 <strong>「🙋 我」+「🤔 想」+「🍚 吃飯」</strong>。APP 會在上方顯示您組合的句子，並可點擊「🔊 朗讀」。
+                        </p>
+                        <p class="text-gray-700 mt-4 leading-relaxed">
+                            💡 <strong>提示：</strong> 在此模式中，您可以點擊「＋ 新增詞彙」，建立您專屬的詞庫！
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. "為誰設計" (Who) 區塊 -->
+        <section class="bg-blue-50 border-t border-b border-blue-200 py-16">
+            <div class="container mx-auto max-w-5xl px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">
+                    專為您和您關心的人設計
+                </h2>
+                <p class="text-lg text-gray-700 mt-6 max-w-3xl mx-auto leading-relaxed">
+                    無論您是...
+                </p>
+                <ul class="text-left max-w-md mx-auto mt-6 space-y-3 text-gray-700">
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-3 mt-1.5">✓</span>
+                        <span>因中風、巴金森氏症、漸凍症 (ALS) 而影響語言能力的<strong>患者</strong>。</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-3 mt-1.5">✓</span>
+                        <span>手術後（如氣切）暫時無法言語的<strong>朋友</strong>。</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-3 mt-1.5">✓</span>
+                        <span>需要與患者溝通的<strong>家人、護理師或外籍照顧者</strong>。</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 5. 結尾 CTA -->
+        <section class="bg-white py-20">
+            <div class="container mx-auto max-w-5xl px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    準備好開始了嗎？
+                </h2>
+                <p class="text-lg text-gray-600 mt-4">
+                    您的所有資料都會儲存在您自己的裝置上，我們不會收集任何資訊。
+                </p>
+                <!-- 結尾行動呼籲 (CTA) - 已更新連結 -->
+                <a href="AAC溝通.html" class="inline-block mt-8 px-10 py-4 text-xl font-bold text-white bg-blue-600 rounded-full shadow-lg transition-transform duration-200 hover:bg-blue-700 hover:scale-105 active:scale-100">
+                    啟動 AAC 句子建構器
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="text-center py-8 bg-gray-100 border-t border-gray-200">
+        <p class="text-gray-500 text-sm">
+            © 2025 AAC 句子建構器. 一個充滿關懷的專案。
+        </p>
+    </footer>
+
+</body>
+</html>
+
