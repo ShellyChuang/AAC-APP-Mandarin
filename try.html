@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>AAC v36 — 照護溝通 (外部SVG版)</title>
+<style>
+:root {
+  --bg: #fdfaf6;
+  --accent: #d4b483;
+  --accent-2: #f8e8b5;
+  --muted: #7a6a55;
+  --card: #fff;
+  --shadow: 0 6px 18px rgba(17,15,12,0.06);
+  --radius: 14px;
+  --font-scale: 100%;
+  --btn-h: 64px;
+}
+body {
+  margin: 0; font-family: "Noto Sans TC", system-ui, -apple-system;
+  background: var(--bg); color: #3b2e1f; font-size: var(--font-scale);
+}
+.app { display: flex; flex-direction: column; height: 100vh; }
+header { padding: 12px 16px; }
+.title { font-weight: 700; color: var(--muted); font-size: 1.05rem; }
+main { flex: 1; overflow: auto; padding-bottom: calc(var(--btn-h) + 20px); }
+.card {
+  background: var(--card); margin: 12px 16px; border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 12px;
+}
+.section-title { font-weight: 700; color: #3d2f20; margin-bottom: 8px; }
+.word-btn {
+  background: #fff; border-radius: 12px; padding: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 72px; font-weight: 700; border: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+}
+.hidden { display: none; }
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: var(--btn-h); background: rgba(255,255,255,0.96);
+  border-top: 1px solid rgba(0,0,0,0.06); display: flex; z-index: 99;
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border: none; background: transparent; font-weight: 600;
+  color: #8a7a63; cursor: pointer;
+}
+.nav-btn.active { color: var(--accent); }
+.popup {
+  position: fixed; background: var(--card); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 100;
+}
+.popup button {
+  display: inline-block; margin: 6px; padding: 8px 10px;
+  border-radius: 10px; border: 1px solid rgba(0,0,0,0.06);
+  background: #fff; font-weight: 700; cursor: pointer;
+}
+.sentence-chip {
+  background: var(--accent-2); padding: 6px 10px; border-radius: 10px;
+  margin: 4px; font-weight: 700;
+}
+.sentence-area { display: flex; flex-wrap: wrap; min-height: 60px; padding: 8px; background: #fff; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="title">AAC v36 — 照護溝通</div></header>
+  <main id="main">
+    <!-- 一鍵求助 -->
+    <section id="quick" class="card">
+      <div class="section-title">一鍵求助</div>
+      <div id="quick-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
+    </section>
+
+    <!-- 情緒與身體 -->
+    <section id="body" class="card hidden">
+      <div class="section-title">情緒 / 身體部位</div>
+      <p style="color:#7a6a55;font-size:0.9rem;">請點選身體部位，彈出狀況選單（痛 / 麻 / 癢 / 痠）</p>
+      <div id="body-container" style="display:flex;justify-content:center;align-items:center;min-height:400px;">
+        <p>載入中…</p>
+      </div>
+    </section>
+
+    <!-- 組合句子 -->
+    <section id="builder" class="card hidden">
+      <div class="section-title">組合句子</div>
+      <div id="sentence-area" class="sentence-area"></div>
+      <div style="display:flex;gap:8px;margin:8px 0;">
+        <button id="speak-btn" class="word-btn" style="flex:1;">🔊朗讀</button>
+        <button id="undo-btn" class="word-btn">⬅️刪除</button>
+        <button id="clear-btn" class="word-btn">❌清除</button>
+      </div>
+      <div id="builder-grid"></div>
+    </section>
+
+    <!-- 設定 -->
+    <section id="settings" class="card hidden">
+      <div class="section-title">設定</div>
+      <label>朗讀語言：</label>
+      <select id="lang-select">
+        <option value="zh-TW">中文（台灣）</option>
+        <option value="en-US">English</option>
+      </select>
+      <p style="font-size:0.9rem;color:#7a6a55;">可依裝置語音庫選擇最自然的聲音</p>
+    </section>
+  </main>
+
+  <!-- 底部導覽 -->
+  <nav class="bottom-nav">
+    <button id="nav-quick" class="nav-btn active">🏠 一鍵求助</button>
+    <button id="nav-body" class="nav-btn">💓 情緒/身體</button>
+    <button id="nav-builder" class="nav-btn">💬 組合句子</button>
+    <button id="nav-settings" class="nav-btn">⚙️ 設定</button>
+  </nav>
+</div>
+
+<script>
+const sections = { quick:'quick', body:'body', builder:'builder', settings:'settings' };
+function showSection(key){
+  for(const s in sections){
+    document.getElementById(sections[s]).classList.toggle('hidden', s!==key);
+    document.getElementById('nav-'+s).classList.toggle('active', s===key);
+  }
+}
+for(const s in sections){ document.getElementById('nav-'+s).onclick=()=>showSection(s); }
+
+const quickData = [
+  {emoji:'🆘', zh:'幫我', en:'Help me'},
+  {emoji:'😫', zh:'我痛', en:"I'm in pain"},
+  {emoji:'💩', zh:'我要大便', en:'I need to poo'},
+  {emoji:'🚽', zh:'我要小便', en:'I need to pee'},
+  {emoji:'😋', zh:'我餓了', en:"I'm hungry"},
+  {emoji:'💧', zh:'我渴了', en:"I'm thirsty"}
+];
+const qg=document.getElementById('quick-grid');
+quickData.forEach(q=>{
+  const b=document.createElement('button'); b.className='word-btn';
+  b.innerHTML=`<div style="font-size:1.4rem;">${q.emoji}</div><div>${q.zh}</div>`;
+  b.onclick=()=>speak(q.zh);
+  qg.appendChild(b);
+});
+
+const builderCats={
+  '動作':['吃','喝','去','看'],
+  '需要':['幫忙','休息','上廁所','換衣'],
+  '地點':['家','醫院','床','廁所'],
+  '人物':['我','你','護士','醫生','媽媽']
+};
+const bg=document.getElementById('builder-grid');
+Object.keys(builderCats).forEach(cat=>{
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`<h4>${cat}</h4>`;
+  builderCats[cat].forEach(w=>{
+    const b=document.createElement('button');
+    b.className='word-btn';
+    b.textContent=w;
+    b.onclick=()=>{ sentence.push(w); renderSentence(); };
+    wrap.appendChild(b);
+  });
+  bg.appendChild(wrap);
+});
+
+let sentence=[];
+function renderSentence(){
+  const area=document.getElementById('sentence-area');
+  area.innerHTML='';
+  if(sentence.length===0){ area.innerHTML='<span style="color:#999;">尚未有詞彙</span>'; return; }
+  sentence.forEach((w,i)=>{
+    const c=document.createElement('span');
+    c.className='sentence-chip';
+    c.textContent=w;
+    c.onclick=()=>{ sentence.splice(i,1); renderSentence(); };
+    area.appendChild(c);
+  });
+}
+document.getElementById('speak-btn').onclick=()=>{ if(sentence.length)speak(sentence.join('')); };
+document.getElementById('undo-btn').onclick=()=>{ sentence.pop(); renderSentence(); };
+document.getElementById('clear-btn').onclick=()=>{ sentence=[]; renderSentence(); };
+
+const statusWords=['痛','麻','癢','痠'];
+let currentLang='zh-TW';
+document.getElementById('lang-select').onchange=e=>{ currentLang=e.target.value; };
+
+// 語音
+function speak(text){
+  window.speechSynthesis.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=currentLang;
+    const vs=window.speechSynthesis.getVoices();
+    if(currentLang==='zh-TW'){
+      u.voice=vs.find(v=>v.lang==='zh-TW'||v.name.includes('Taiwan'))||null;
+    }
+    window.speechSynthesis.speak(u);
+  },80);
+}
+
+// 載入 SVG
+function attachBodyInteractivity(){
+  const svg=document.getElementById('body-container').querySelector('svg');
+  if(!svg) return;
+  svg.querySelectorAll('[id]').forEach(el=>{
+    el.style.cursor='pointer';
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      const name=el.id.replace(/^p_/,'');
+      openStatusMenu(el,name);
+    });
+  });
+}
+function openStatusMenu(el,name){
+  closePopup();
+  const rect=el.getBoundingClientRect();
+  const popup=document.createElement('div'); popup.className='popup';
+  const title=document.createElement('div');
+  title.style.fontWeight='700'; title.textContent=name;
+  popup.appendChild(title);
+  statusWords.forEach(w=>{
+    const b=document.createElement('button');
+    b.textContent=w;
+    b.onclick=()=>{
+      speak(`我的${name}好${w}`);
+      closePopup();
+    };
+    popup.appendChild(b);
+  });
+  document.body.appendChild(popup);
+  popup.style.left=(rect.left+rect.width/2+8)+'px';
+  popup.style.top=(rect.top-8)+'px';
+  currentPopup=popup;
+}
+let currentPopup=null;
+function closePopup(){ if(currentPopup){ currentPopup.remove(); currentPopup=null; } }
+document.addEventListener('click',closePopup);
+
+fetch('male.svg')
+  .then(r=>r.text())
+  .then(txt=>{
+    document.getElementById('body-container').innerHTML=txt;
+    attachBodyInteractivity();
+  })
+  .catch(()=>{
+    document.getElementById('body-container').innerHTML='<p style="color:red;">找不到 male.svg 檔案</p>';
+  });
+
+showSection('quick');
+</script>
+</body>
+</html>
